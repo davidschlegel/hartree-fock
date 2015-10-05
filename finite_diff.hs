@@ -1,8 +1,9 @@
 import Numeric.Container hiding (linspace)
 import Numeric.LinearAlgebra.Util
+import Numeric.LinearAlgebra.Data hiding (linspace)
 import Numeric.LinearAlgebra.Algorithms 
 import Numeric.LinearAlgebra.Devel
-import Data.List
+import Data.List hiding (find)
 import DSP.Basic
 
 
@@ -19,21 +20,25 @@ import Control.Lens
 # Eigenvalue problem in one dimension. -}
 
 
---Create the tridiagonal differential matrix
---Possibly neccessary to convert into a sparse matrix 
+--Create the tridiagonal differential matrix, with corresponding sparse matrix, if needed.
 d :: Matrix Double
 d = buildMatrix 100 100 (\(i,j) -> if (i,j) == (i,i) then 2 else if (i,j) == (i, i-1) then -1 else if (i,j) == (i,i+1) then -1 else 0) 
+d_Sparse = mkSparse [((i,j), (d @@> (i,j))) | (i,j) <- (find (/= 0) d)]
 
---Create the potential matrix
---Possibly neccessary to convert into a sparse matrix 
+
+--Create the potential matrix with corresponding sparse matrix, if needed.
 v :: Matrix Double
-v = buildMatrix 100 100 (\(i,j) -> if (i,j) == (0,0) then 1e100 else if (i,j) == (99,99) then 1e100 else 0) 
+v = buildMatrix 100 100 (\(i,j) -> ((fromIntegral i)+50)^2) 
+v_Sparse = mkSparse [((i,j), (d @@> (i,j))) | (i,j) <- (find (/= 0) v)]
+
+
+
 
 --The energy eigenvalues in a sorted List:
-e = sort(toList(mapVector realPart (fst(eig(d)))))
+e = sort(toList(mapVector realPart (fst(eig(d_Sparse+v_Sparse)))))
 
 --The corresponding eigenfunctions
-psi = toColumns (mapMatrix realPart (snd(eig(d))))
+psi = toColumns (mapMatrix realPart (snd(eig(d_Sparse+v_Sparse))))
 
 
 --Plot
@@ -46,7 +51,7 @@ chart = toRenderable layout
 	points1 = zip ( x) (map (\x -> abs(x)^2) (toList (psi !! 1)))
 	points2 = zip ( x) (map (\x -> abs(x)^2) (toList (psi !! 2)))
 	points3 = zip ( x) (map (\x -> abs(x)^2) (toList (psi !! 3)))
-	points4 = zip ( x) (map (\x -> abs(x)^2) (toList (psi !! 0)))  
+	points4 = zip ( x) (map (\x -> abs(x)^2) (toList (psi !! 4)))  
 	psi1 = plot_lines_values .~ [points1]
               $ plot_lines_style  . line_color .~ opaque blue
               $ plot_lines_title .~ "psi1"
@@ -74,4 +79,4 @@ chart = toRenderable layout
            $ def
  
  
-main = renderableToFile def{_fo_format=PDF} "eigenfunctions1.pdf" chart
+main = renderableToFile def{_fo_format=PDF} "eigenfunctions_quadratic_v.pdf" chart
