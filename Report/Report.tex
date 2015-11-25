@@ -1,15 +1,15 @@
 % article example for classicthesis.sty
 \documentclass[10pt,a4paper]{article} % KOMA-Script article scrartcl
 \usepackage{lipsum}
+\usepackage{subfigure}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{url}
 \usepackage[nochapters]{classicthesis} % nochapters
+\usepackage{listings}
 \usepackage[pdftex]{graphicx}
 \renewcommand{\i}{{\mathrm{i}}}
 \renewcommand{\d}{\mathrm{d}}
-
-
 \begin{document}
     \title{\rmfamily\normalfont\spacedallcaps{Quantum Many-Body Simulations in Haskell}}
     \author{\spacedlowsmallcaps{David Schlegel}}
@@ -24,7 +24,7 @@
        
     \tableofcontents
     
-    \section{Simple Quantum Systems}
+    \section{Simple Quantum Systems}\label{1}
    In this chapter simple quantum systems will be studied. Consider a particle in a three-dimensional potential $V(\vec{x})$. The corresponding wave function $\psi(\vec{x}, t)$ is the solution of the Schrödinger equation
    \begin{equation}
   \i \hbar \frac{\partial}{\partial t} \psi(\vec{x}, t) = H \psi(\vec{x}, t) = - \frac{\hbar^2}{2m}	\Delta \psi(\vec{x}, t)+  V(\vec{x}) \psi(\vec{x}, t) \text{,}
@@ -78,7 +78,7 @@ Solving the above eigenvalue equation yields the eigenfunctions $\psi_n$ with ei
 	\Huge
 	\centering
 	\resizebox{!}{0.6\textwidth}{\input{figures/eigenfunctions.tex}}
-	\caption{Propability densities for the calculated eigenfunctions $\psi_n$, with the method of finite differences and a grid of $N=100$ for $n = 1,2,3$ and $4$ in one dimension. For simplicity the prefactor $\dfrac{\hbar^2}{2m}$ was set to zero, obtaining non-normalized eigenfunctions.}
+	\caption{Propability densities for the calculated eigenfunctions $\psi_n$, with the method of finite differences and a grid of $N=100$ for $n = 1,2,3$ and $4$ in one dimension. For simplicity the prefactor $\frac{\hbar^2}{2m}$ was set to one, obtaining non-normalized eigenfunctions.}
 	\label{fig:eigenfunctions}
 \end{figure} 
 To reduce the problem of a particle in three dimensions to a simple matrix equation, the spatial wave function $\vec{\psi}$ can be stacked, to obtain an $N^3$ dimensional vector
@@ -86,7 +86,78 @@ To reduce the problem of a particle in three dimensions to a simple matrix equat
 \vec{\psi}_{k,l,m} = \begin{pmatrix}\vec{\psi}_{1,1,m} \\ \vdots \\ \vec{\psi}_{1,N,m} \\ \vdots \\ \vec{\psi}_{N,1,m} \\ \vdots \\ \vec{\psi}_{N,N,m} \end{pmatrix} \text{, through nested vectors.}
 \end{align}
 
-    \subsection{A Subsection}
+For two dimensions the approximated kinetic energy operator $T$ thus becomes the tridiagonal block matrix
+\begin{align}
+T \approx  \begin{pmatrix}
+4	& -1	&  &  -1	 &     &     &  \scalebox{3}{$0$}  \\
+    & \ddots	&     & 		&   \ddots   & 	& \\
+    & -1 & 4 &  &  &-1 \\
+-1 &      &          & 4     & -1       & & \ddots \\
+    & \ddots &     &&    \ddots   &       &  \\
+  \scalebox{3}{$0$}   &      & -1       &&         & -1     & 4 \\ 
+\end{pmatrix} \text{.}
+\end{align}
+
+In figure \ref{fig:2d_eigenfunction} an example of an eigenstate for a particle in a two dimensional box is shown.
+
+\begin{figure}[!htb]
+	\Huge
+	\hspace*{-1.5in}
+	\centering
+	\subfigure[Color map, $\psi_{12}$, $N=60$.]
+		{\resizebox{!}{0.38\textwidth}{\input{figures/2dn12.tex}}\label{fig:2d_eigenfunction}}
+	%\hfill
+	\subfigure[Surface graphic, $\psi_{34}$, $N=100$.]
+		{\resizebox{0.58\textwidth}{!}{\includegraphics{figures/2dn34_surf.pdf}}\label{fig:2d_surf_eigenfunction}}\\
+	 %\hfill
+	\caption{Propability densities for the calculated eigenfunctions with the method of finite differences and a grid of $N=100$ and $N=60$ in two dimensions. For simplicity the prefactor $\hbar^2 /2m$ was set to one, obtaining non-normalized eigenfunctions.}
+	\label{Aufbauskizze}
+\end{figure}
+
+
+%\begin{figure}[!htb]
+%	\Huge
+%	\centering
+%	\resizebox{!}{0.7\textwidth}{\input{figures/2dn12.tex}}
+%	\caption{Propability densities for the calculated eigenfunction $\psi_{12}$, with the method of finite differences and a grid of $N=60$ in two dimensions. For simplicity the prefactor $\frac{\hbar^2}{2m}$ was set to one, obtaining a non-normalized eigenfunction.}
+%\label{fig:2d_eigenfunction}
+%\end{figure} 
+
+In three dimensions, we obtain a $N^3$-dimensional Matrix, for example for $N=2$:
+\begin{align*}
+T \approx
+\tiny
+\begin{pmatrix}
+ 6 & -1 & -1 &  & -1 &  &  & \scalebox{3}{$0$}  \\\\
+   -1 & 6 & -1 & -1 &  & -1 &  & \\\\
+     -1 & -1 & 6 & -1 & -1 &  & -1 & \\\\
+        & -1 & -1 & 6 & -1 & -1 &  & -1\\\\
+        -1 &  & -1 & -1 & 6 & -1 & -1 & \\\\
+           & -1 &  & -1 & -1 & 6 & -1 & -1\\\\
+             &  & -1 &  & -1 & -1 & 6 & -1\\\\
+              \scalebox{3}{$0$}  &  &  & -1 &  & -1 & -1 & 6\\\\
+              \end{pmatrix}
+\end{align*}
+
+\begin{lstlisting}
+Still Missing: Comparison with exact results
+\end{lstlisting}
+
+Referring back to the time expansion in chapter \ref{1}, the time evolution of an eigenfunction of the hamiltonian is trivial, since $\psi_t$ only differs in phase from the initial state $\psi_0$, so ${|\psi_t|}^2$ is time-independent, although linear combinations of eigenfunctions depend on time, which will not be calculated here.\\
+
+If we take the computing time into account, it is obvious that even with a small gridsize $N<100$ and parallelized computing the simulation of a particle in a square well potential lead to a unexecutable applications. The increase of dimensions with constant gridsize results in a growing computing time higher than $\mathcal O (t_0^n)$. \\
+
+To proceed to coupled quantum mechanical systems it seems to be mandatory to use efficient approximations.
+
+
+
+
+    \section{Many-Body Simulations}
+    
+    Consider a real physical system, where particles are not independent like in atoms, ions, molecules, etc. . Assuming the system consists only of $K$ nuclei and $N$ electrons the hamiltonian reads
+    \begin{align*}
+    H &= \sum_{i=1}^N \frac{p_i^2}{2m} + \sum_{n=1}^K \frac{p_i^2}{2M_n} + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j\neq 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} \\ &-  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|} +  \frac{1}{4\pi \epsilon_0}\frac{1}{2} \sum_{n,n'=1;n\neq n'}^K \frac{Z_n Z_{n'} e^2}{|\mathbf{R}_n - \mathbf{R}_{n'}|} \text{,}
+    \end{align*} where $m$ is the electron mass and $M_n$ the nuclei mass. The index $i$ refers to the electrons, the index $n$ to the nuclei.
     
     \section{A Section}
     
@@ -97,3 +168,5 @@ To reduce the problem of a particle in three dimensions to a simple matrix equat
     \bibliographystyle{plain}
     \bibliography{../Bibliography}
 \end{document}
+
+
