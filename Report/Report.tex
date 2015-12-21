@@ -154,12 +154,41 @@ To proceed to coupled quantum mechanical systems it seems to be mandatory to use
 
     \section{Many-Body Simulations}
     
-    Consider a real physical system, where particles are not independent like in atoms, ions, molecules, etc. . Assuming the system consists only of $K$ nuclei and $N$ electrons the hamiltonian reads
-    \begin{align*}
-    H &= \sum_{i=1}^N \frac{p_i^2}{2m} + \sum_{n=1}^K \frac{p_i^2}{2M_n} + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j\neq 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} \\ &-  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|} +  \frac{1}{4\pi \epsilon_0}\frac{1}{2} \sum_{n,n'=1;n\neq n'}^K \frac{Z_n Z_{n'} e^2}{|\mathbf{R}_n - \mathbf{R}_{n'}|} \text{,}
-    \end{align*} where $m$ is the electron mass and $M_n$ the nuclei mass. The index $i$ refers to the electrons, the index $n$ to the nuclei.
+    Consider a real physical system, where particles are not independent like in atoms, ions, molecules, etc. . Assuming the system consists only of $K$ nuclei and $N$ electrons the hamiltonian consists of the terms
+\begin{align*}
+    H = T_i + T_n+ V_{ii} + V_{in} + V_{nn} \text{ ,}
+\end{align*} 
+    where $T_i $ and $T_n$ are the kinetic energies of the electrons and nuclei, respectively. $V_{ii}$ represents the Coulomb repulsion between electrons, $V_{nn}$ between the nuclei and $V_{in}$  the attraction between electrons and nuclei. So the hamiltonian reads
     
-    \section{A Section}
+    \begin{align*}
+    H &= \sum_{i=1}^N \frac{p_i^2}{2m} + \sum_{n=1}^K \frac{P_n^2}{2M_n} + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j\neq 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} \\ &-  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|} +  \frac{1}{4\pi \epsilon_0}\frac{1}{2} \sum_{n,n'=1;n\neq n'}^K \frac{Z_n Z_{n'} e^2}{|\mathbf{R}_n - \mathbf{R}_{n'}|} \text{,}
+    \end{align*} where $m$ is the electron mass and $M_n$ the nuclei mass. The index $i$ refers to the electrons, the index $n$ to the nuclei.
+This hamiltonian describing the system looks quite complicated and in fact, computing the dynamics of this system seems to be unsolvable even for a few particles and an efficient super computer. Therfore, approximations must be made, still comprising the important information about the system. One approach is the Born-Oppenheimer approximation. It uses the fact that the nuclei are much heavier than the electrons, so the motions of the nuclei are much faster compared to the electrons, justifying to neglect the coulomb repulsion between the nuclei and the kinetic energy of the nuclei, so the approximated hamiltonian becomes
+\begin{align}
+H_\text{BO} = \sum_{i=1}^N \frac{p_i^2}{2m}  + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j = 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} -  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|}  \text{.}
+\end{align}  
+
+The positions of the nuclei can be varied to find the minimum of the total energy.
+    \subsection{The Hartree-Fock Method and Equations}
+    \subsection{The Roothaan Equation}
+    For molecules numerical basis sets are not efficient, so we use atom centered basis sets to describe the molecular orbital
+    \begin{align}\label{eq:orbital}
+    \psi_k(\vec{x}) = \sum_{p=1}^M C_{pk} \chi_p (\vec{x})\text{,}
+    \end{align}
+    with $k = 1,\dots, M$, where $M$ is the number of basis states.
+    So the Hartree-Fock equation reads
+    \begin{align*}
+    \mathcal{F} (\vec{x})   \psi_k(\vec{x}) &= \epsilon_k    \psi_k(\vec{x}) \quad \text{using \ref{eq:orbital} yields}\\
+    \mathcal{F} (\vec{x})  \sum_{p=1}^M C_{pk} \chi_p (\vec{x}) &= \epsilon_k \sum_{p=1}^M C_{pk} \chi_p (\vec{x})\\
+     \sum_{p=1}^M C_{pk} \int \chi_\nu^*(\vec{x})  \mathcal{F} (\vec{x}) \chi_p(\vec{x})\text{d}^3 \vec{x} & =  \epsilon_k  \sum_{p=1}^M C_{pk} \int \chi_\nu^*(\vec{x}) \chi_p(\vec{x})\text{d}^3 \vec{x}   \text{.}
+    \end{align*}
+    This is a matrix equation o the form
+    \begin{align*}
+    \sum_{p=1}^M C_{pk} F_{\nu p}  &= \epsilon_k \sum_{p=1}^M C_{pk} S_{\nu p}\\
+    F C_k &= \epsilon_k S C_k \; \text{,}
+    \end{align*} which is called the \textit{Roothaan equation}.
+    Since the Fock operator itself depends on $C_k$ we have the problem of self consistency, because $\mathcal{F}$ has the solution already inside. The Self Consistent Field Method (SCF) uses the approach to solve the above equation iteratively, until the solution deviates only small from the next iteration.
+    
     
     % bib stuff
     \nocite{*}
