@@ -178,16 +178,19 @@ The positions of the nuclei can be varied to find the minimum of the total energ
     with $k = 1,\dots, M$, where $M$ is the number of basis states.
     So the Hartree-Fock equation reads
     \begin{align*}
-    \mathcal{F} (\vec{x})   \psi_k(\vec{x}) &= \epsilon_k    \psi_k(\vec{x}) \quad \text{using \ref{eq:orbital} yields}\\
-    \mathcal{F} (\vec{x})  \sum_{p=1}^M C_{pk} \chi_p (\vec{x}) &= \epsilon_k \sum_{p=1}^M C_{pk} \chi_p (\vec{x})\\
+    \mathcal{F} (\vec{x})   \psi_k(\vec{x}) &= \epsilon_k    \psi_k(\vec{x})\text{.} \quad \text{Using Eq. (\ref{eq:orbital}) yields}\\
+    \mathcal{F} (\vec{x})  \sum_{p=1}^M C_{pk} \chi_p (\vec{x}) &= \epsilon_k \sum_{p=1}^M C_{pk} \chi_p (\vec{x})\text{.}\\
+    \end{align*}
+    We can now multiply from the left by a specific basis function $\chi_\nu$. Integrating yields over the space yields
+    \begin{align*}
      \sum_{p=1}^M C_{pk} \int \chi_\nu^*(\vec{x})  \mathcal{F} (\vec{x}) \chi_p(\vec{x})\text{d}^3 \vec{x} & =  \epsilon_k  \sum_{p=1}^M C_{pk} \int \chi_\nu^*(\vec{x}) \chi_p(\vec{x})\text{d}^3 \vec{x}   \text{.}
     \end{align*}
-    This is a matrix equation o the form
+    This can be written as a matrix notation of the Hartree-Fock equations, expressed in the atomic orbital basis:
     \begin{align*}
     \sum_{p=1}^M C_{pk} F_{\nu p}  &= \epsilon_k \sum_{p=1}^M C_{pk} S_{\nu p}\\
-    F C_k &= \epsilon_k S C_k \; \text{,}
+    \mathbf{F} \mathbf{C_k} &= \epsilon_k \mathbf{S} \mathbf{C_k} \; \text{,}
     \end{align*} which is called the \textit{Roothaan equation}.
-    Since the Fock operator itself depends on $C_k$ we have the problem of self consistency, because $\mathcal{F}$ has the solution already inside. The Self Consistent Field Method (SCF) uses the approach to solve the above equation iteratively, until the solution deviates only small from the next iteration.
+    Since the Fock operator itself depends on $\mathbf{C_k}$ we have the problem of self consistency, because $\mathcal{F}$ has the solution already inside. The Self Consistent Field Method (SCF) uses the approach to solve the above equation iteratively, until the solution deviates only small from the next iteration.
     
     
     % bib stuff
