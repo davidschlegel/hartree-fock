@@ -2,6 +2,7 @@
 \documentclass[10pt,a4paper]{article} % KOMA-Script article scrartcl
 \usepackage{lipsum}
 \usepackage{subfigure}
+\usepackage{braket}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{url}
@@ -19,7 +20,7 @@
     \maketitle
     
     \begin{abstract}
-      Applying numerical methods in quantum mechanics has always been necessary in analyzing complex structures of quantum mechanical systems. The technical progress of computer performance has enabled physicists and mathematicians to simulate complex many-body systems. With these methods tangible progress in quantum physics can be made, to analyze quantum phenomena on the level of many-particle interactions. This article focuses on the implementation of numerical methods for many-body simulation in the functional programming language \textbf{Haskell}. Functional programming languages get more and more interesting for physicists through their mathematical way of implementation. In this article simple quantum systems are simulated first and an overview of different numerical methods for solving the Schrödinger equation will be given following an attempt to proceed to many-body systems from simple quantum systems. 
+      Applying numerical methods in quantum mechanics has always been necessary in analysing complex structures of quantum mechanical systems. The technical progress of computer performance has enabled physicists and mathematicians to simulate complex many-body systems. With these methods tangible progress in quantum physics can be made, to analyse quantum phenomena on the level of many-particle interactions. This article focuses on the implementation of numerical methods for many-body simulation in the functional programming language \textbf{Haskell}. Functional programming languages get more and more interesting for physicists through their mathematical way of implementation. In this article simple quantum systems are simulated first and an overview of different numerical methods for solving the Schrödinger equation will be given following an attempt to proceed to many-body systems from simple quantum systems. 
     \end{abstract}
        
     \tableofcontents
@@ -45,7 +46,7 @@
 \end{equation}   and to neglect small deviations of the Hamiltonian in the small interval $\Delta t = t_n - t_{n-1}$.
    
     \subsection{Discretization of the kinetic Energy}
-    Dividing the Hamiltonian $H$ into $H = T + V$, the nonlocal kinetic energy operator can be written as
+    Dividing the Hamiltonian $H$ into $H = T + V$, the non-local kinetic energy operator can be written as
     \begin{equation}
     T \psi(\vec{x}, t) = - \frac{\hbar^2}{2m} \Delta \psi(\vec{x}, t) \text{.}
     \end{equation}
@@ -78,7 +79,7 @@ Solving the above eigenvalue equation yields the eigenfunctions $\psi_n$ with ei
 	\Huge
 	\centering
 	\resizebox{!}{0.6\textwidth}{\input{figures/eigenfunctions.tex}}
-	\caption{Propability densities for the calculated eigenfunctions $\psi_n$, with the method of finite differences and a grid of $N=100$ for $n = 1,2,3$ and $4$ in one dimension. For simplicity the prefactor $\frac{\hbar^2}{2m}$ was set to one, obtaining non-normalized eigenfunctions.}
+	\caption{Propability densities for the calculated eigenfunctions $\psi_n$, with the method of finite differences and a grid of $N=100$ for $n = 1,2,3$ and $4$ in one dimension. For simplicity the pre-factor $\frac{\hbar^2}{2m}$ was set to one, obtaining non-normalized eigenfunctions.}
 	\label{fig:eigenfunctions}
 \end{figure} 
 To reduce the problem of a particle in three dimensions to a simple matrix equation, the spatial wave function $\vec{\psi}$ can be stacked, to obtain an $N^3$ dimensional vector
@@ -110,7 +111,7 @@ In figure \ref{fig:2d_eigenfunction} an example of an eigenstate for a particle 
 	\subfigure[Surface graphic, $\psi_{34}$, $N=100$.]
 		{\resizebox{0.58\textwidth}{!}{\includegraphics{figures/2dn34_surf.pdf}}\label{fig:2d_surf_eigenfunction}}\\
 	 %\hfill
-	\caption{Propability densities for the calculated eigenfunctions with the method of finite differences and a grid of $N=100$ and $N=60$ in two dimensions. For simplicity the prefactor $\hbar^2 /2m$ was set to one, obtaining non-normalized eigenfunctions.}
+	\caption{Propability densities for the calculated eigenfunctions with the method of finite differences and a grid of $N=100$ and $N=60$ in two dimensions. For simplicity the pre-factor $\hbar^2 /2m$ was set to one, obtaining non-normalized eigenfunctions.}
 	\label{Aufbauskizze}
 \end{figure}
 
@@ -145,7 +146,7 @@ Still Missing: Comparison with exact results
 
 Referring back to the time expansion in chapter \ref{1}, the time evolution of an eigenfunction of the hamiltonian is trivial, since $\psi_t$ only differs in phase from the initial state $\psi_0$, so ${|\psi_t|}^2$ is time-independent, although linear combinations of eigenfunctions depend on time, which will not be calculated here.\\
 
-If we take the computing time into account, it is obvious that even with a small gridsize $N<100$ and parallelized computing the simulation of a particle in a square well potential lead to a unexecutable applications. The increase of dimensions with constant gridsize results in a growing computing time higher than $\mathcal O (t_0^n)$. \\
+If we take the computing time into account, it is obvious that even with a small grid size $N<100$ and parallelized computing the simulation of a particle in a square well potential lead to a unexecutable applications. The increase of dimensions with constant gridsize results in a growing computing time higher than $\mathcal O (t_0^n)$. \\
 
 To proceed to coupled quantum mechanical systems it seems to be mandatory to use efficient approximations.
 
@@ -163,13 +164,32 @@ To proceed to coupled quantum mechanical systems it seems to be mandatory to use
     \begin{align*}
     H &= \sum_{i=1}^N \frac{p_i^2}{2m} + \sum_{n=1}^K \frac{P_n^2}{2M_n} + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j\neq 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} \\ &-  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|} +  \frac{1}{4\pi \epsilon_0}\frac{1}{2} \sum_{n,n'=1;n\neq n'}^K \frac{Z_n Z_{n'} e^2}{|\mathbf{R}_n - \mathbf{R}_{n'}|} \text{,}
     \end{align*} where $m$ is the electron mass and $M_n$ the nuclei mass. The index $i$ refers to the electrons, the index $n$ to the nuclei.
-This hamiltonian describing the system looks quite complicated and in fact, computing the dynamics of this system seems to be unsolvable even for a few particles and an efficient super computer. Therfore, approximations must be made, still comprising the important information about the system. One approach is the Born-Oppenheimer approximation. It uses the fact that the nuclei are much heavier than the electrons, so the motions of the nuclei are much faster compared to the electrons, justifying to neglect the coulomb repulsion between the nuclei and the kinetic energy of the nuclei, so the approximated hamiltonian becomes
-\begin{align}
+This hamiltonian describing the system looks quite complicated and in fact, computing the dynamics of this system seems to be unsolvable even for a few particles and an efficient super computer. Therefore, approximations must be made, still comprising the important information about the system. One approach is the Born-Oppenheimer approximation. It uses the fact that the nuclei are much heavier than the electrons, so the motions of the nuclei are much faster compared to the electrons, justifying to neglect the coulomb repulsion between the nuclei and the kinetic energy of the nuclei, so the approximated hamiltonian becomes
+\begin{align}\label{eq:H_BO}
 H_\text{BO} = \sum_{i=1}^N \frac{p_i^2}{2m}  + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j = 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} -  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|}  \text{.}
 \end{align}  
-
 The positions of the nuclei can be varied to find the minimum of the total energy.
     \subsection{The Hartree-Fock Method and Equations}
+ In equation (\ref{eq:H_BO}) the antisymmetry of the wave functions was not taken into account. Fock extended the so called \textit{Hartree equation} by taking antisymmetry into account. The derivation of the \textit{Hartree} and \textit{Hartree-Fock equations} will not be given here, since the main aim here is the implementation of the method. Therefore see e.g. \cite[p. 56-60]{Thijssen2007} and \cite[chapter 3]{Jensen2013}. The \textit{Fock operator} is in natural units given by
+ \begin{align} \label{eq:hf}
+ \mathcal{F}\psi_k = &\left[-\frac{1}{2} \nabla^2 
+ - \sum_n \frac{Z_n}{|\mathbf{r}- \mathbf{R}_n|}\right]\psi_k(\mathbf{x}) + \nonumber
+ \sum_{l=1}^N \int \text{d}x' |\psi_l(\mathbf{x}')|^2 \frac{1}{|\mathbf{r}-\mathbf{r}'|} \psi_k(\mathbf{x}) \\
+&- \sum_{l=1}^N \int \text{d}x' \psi^*(\mathbf{x}')\frac{1}{|\mathbf{r}-\mathbf{r}'|} \psi_k(\mathbf{x}')\psi_l(\mathbf{x})\text{,}
+ \end{align}
+ satisfying the \textit{Hartree-Fock equation}
+ \begin{align*}
+ \mathcal{F} \psi_k = \epsilon_k \psi_k \text{.}
+ \end{align*} The fourth term in equation (\ref{eq:hf}) is called the exchange term \cite[p. 55]{Thijssen2007} and is nonlocal since the operator is acting on $\psi_k$, but the value at the position $\mathbf{r}$ is determined by the value assumed by $\psi_k$ at all possible positions $\mathbf{r}'$. The eigenvalues $\epsilon_k$ of the Fock operator are related to the total energy by
+ \begin{align*}
+ E &= \frac{1}{2} \sum_k [\epsilon_k + \braket{\psi_k|h|\psi_k}] \text{, with}\\
+ \braket{\psi_k|h|\psi_k} &= \int \text{d}^3\mathbf{x}\; \psi_k^*(\mathbf{x}) \left[-\frac{1}{2} \nabla^2 
+ - \sum_n \frac{Z_n}{|\mathbf{r}- \mathbf{R}_n|}\right] \psi_k(\mathbf{x}) \text{.}
+ \end{align*} It is obvious that the Fock operator in equation (\ref{eq:hf}) which acts on $\psi_k$ also depends on $\psi_k$ itself.
+    
+    
+    
+    
     \subsection{The Roothaan Equation}
     For molecules numerical basis sets are not efficient, so we use atom centered basis sets to describe the molecular orbital
     \begin{align}\label{eq:orbital}
@@ -181,11 +201,11 @@ The positions of the nuclei can be varied to find the minimum of the total energ
     \mathcal{F} (\vec{x})   \psi_k(\vec{x}) &= \epsilon_k    \psi_k(\vec{x})\text{.} \quad \text{Using Eq. (\ref{eq:orbital}) yields}\\
     \mathcal{F} (\vec{x})  \sum_{p=1}^M C_{pk} \chi_p (\vec{x}) &= \epsilon_k \sum_{p=1}^M C_{pk} \chi_p (\vec{x})\text{.}\\
     \end{align*}
-    We can now multiply from the left by a specific basis function $\chi_\nu$. Integrating yields over the space yields
+    We can now multiply from the left by a specific basis function $\chi_\nu$. Integrating over the space yields
     \begin{align*}
      \sum_{p=1}^M C_{pk} \int \chi_\nu^*(\vec{x})  \mathcal{F} (\vec{x}) \chi_p(\vec{x})\text{d}^3 \vec{x} & =  \epsilon_k  \sum_{p=1}^M C_{pk} \int \chi_\nu^*(\vec{x}) \chi_p(\vec{x})\text{d}^3 \vec{x}   \text{.}
     \end{align*}
-    This can be written as a matrix notation of the Hartree-Fock equations, expressed in the atomic orbital basis:
+    This can be written in matrix notation of the Hartree-Fock equations, expressed in the atomic orbital basis:
     \begin{align*}
     \sum_{p=1}^M C_{pk} F_{\nu p}  &= \epsilon_k \sum_{p=1}^M C_{pk} S_{\nu p}\\
     \mathbf{F} \mathbf{C_k} &= \epsilon_k \mathbf{S} \mathbf{C_k} \; \text{,}
@@ -198,7 +218,7 @@ The positions of the nuclei can be varied to find the minimum of the total energ
     \addtocontents{toc}{\protect\vspace{\beforebibskip}}
     \addcontentsline{toc}{section}{\refname}    
     \bibliographystyle{plain}
-    \bibliography{../Bibliography}
+    \bibliography{Bibliography}
 \end{document}
 
 
