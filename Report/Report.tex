@@ -3,12 +3,14 @@
 \usepackage{lipsum}
 \usepackage{subfigure}
 \usepackage{braket}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,fit,calc,positioning}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{url}
 \usepackage[nochapters]{classicthesis} % nochapters
 \usepackage{listings}
-\usepackage[pdftex]{graphicx}
+%\usepackage[pdftex]{graphicx}
 \renewcommand{\i}{{\mathrm{i}}}
 \renewcommand{\d}{\mathrm{d}}
 \begin{document}
@@ -212,6 +214,81 @@ The positions of the nuclei can be varied to find the minimum of the total energ
     \end{align*} which is called the \textit{Roothaan equation}.
     Since the Fock operator itself depends on $\mathbf{C_k}$ we have the problem of self consistency, because $\mathcal{F}$ has the solution already inside. The Self Consistent Field Method (SCF) uses the approach to solve the above equation iteratively, until the solution deviates only small from the next iteration.
     
+    
+    \subsection{Program Structure}
+    \tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=7em, text badly centered, node distance=5.7cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+    text width=7em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{largeblock} = [rectangle, draw, fill=blue!20, 
+    text width=17em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
+    minimum height=2em]
+\tikzstyle{c} = [rectangle, draw, inner sep=0.5cm, dashed]
+    
+    
+    
+\begin{tikzpicture}[node distance = 3.3cm, auto]
+    % Place nodes
+    \node [block] (init) {choose set of basis functions $\chi$};
+    
+    \node [block, below of=init] (hpq) {guess density matrix $\mathbf{P}$};
+    \node [block, left of=hpq] (Spq) {overlap matrix $S_{pq}$};
+    \node [block, right of=hpq] (prgqs) {two-electron integrals $\braket{pr|g|qs}$};
+    \node [block, right of=prgqs] (Ppq) {uncoupled one-electron Hamiltonian $h_{pq}$};
+    \node [block, below of=Spq] (VSV) {bring $\mathbf{S}$ to unitform, s.th $\mathbf{V^\dagger SV}  = \mathbf{1}$};
+    
+    \node [largeblock, below of=prgqs] (G) {Coulomb and exchange contributions to the Fock matrix. \
+    									 $G_{pq}=\sum_{rs}P_{rs} \left[\braket{pr|g|qs} - \frac{1}{2} \braket{pr|g|sq}\right]$};
+    \node [block, below left of=G] (F) {Fock matrix \mbox{$F_{pq} = h_{pq} + G_{pq}$}};
+    \node [block, below of=F] (diagF) {solving $\mathbf{F C} = \epsilon \mathbf{C}$ by diagonalization of $\mathbf{F}$};
+    \node [block, below of=diagF] (newP) {construct  new density matrix through \mbox{$ P_{pq} = 2 \sum C_{pk} C_{pk}^*$}};
+     \node [decision, right of=newP] (convergence) {convergence};
+     \node [block, below right of=convergence] (done) {done};
+     
+     \node [c,fit=(G) (newP) (convergence)] (container) {};
+ 
+
+    
+    \path [line] (init) -| (Spq);
+    \path [line] (init) -| (Ppq);
+
+    \path [line] (init) -- (hpq);
+    \path [line] (init) -| (prgqs);
+    \path [line] (Spq) -- (VSV);
+    \path [line] (G) |-	 (F);
+    \path [line] (F) -- (diagF);
+    \path [line] (diagF) -- (newP);
+    \path [line] (VSV) |- (newP);
+    \path [line] (prgqs) -- (G);
+    \path [line] (Ppq) |- (F);
+    \path [line] (hpq) |- (G);
+    
+     \path [line] (newP) |- (convergence);
+    \path [line] (convergence) |- node [near start] {no} (G);
+    \path [line] (convergence) -| node [near end] {yes} (done); 
+    
+
+
+
+    
+
+ %   \node [block, below of=identify] (evaluate) {evaluate candidate models};
+  %  \node [block, left of=evaluate, node distance=3cm] (update) {update model};
+   % \node [decision, below of=evaluate] (decide) {is best candidate better?};
+    %\node [block, below of=decide, node distance=3cm] (stop) {stop};
+    % Draw edges
+ %   \path [line] (init) -- (identify);
+  %  \path [line] (identify) -- (evaluate);
+  %  \path [line] (evaluate) -- (decide);
+  %  \path [line] (decide) -| node [near start] {yes} (update);
+  %  \path [line] (update) |- (identify);
+  %  \path [line] (decide) -- node {no}(stop);
+  %  \path [line,dashed] (expert) -- (init);
+  %  \path [line,dashed] (system) -- (init);
+  %  \path [line,dashed] (system) |- (evaluate);
+\end{tikzpicture}
     
     % bib stuff
     \nocite{*}
