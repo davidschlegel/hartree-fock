@@ -1,3 +1,5 @@
+module Read_basis where
+
 import System.Process
 import System.IO
 import System.IO.Unsafe
@@ -25,17 +27,17 @@ data Orbital = Orbital { description :: (String, Int) 	-- eg ("S", 3)
 			} deriving (Show)
 
 --data type Atom: Collection of several (contracted) Orbitals
-data Atom = Atom {name :: String	-- name of the Atom e.g. "CARBON"
+data Atom = Atom {atomname :: String	-- name of the Atom e.g. "CARBON"
 		, orbitals :: [Orbital] -- array of the orbitals corresponding to an atom
 		 } deriving (Show)
 
 
 
 --main function: setAtomData
---input: filname of the textfile where the basis set of the given atom is stored
+--input: filatomname of the textfile where the basis set of the given atom is stored
 --output: Atom; data type described above
 setAtomData :: [Char] -> Atom
-setAtomData filename = Atom name orbitals
+setAtomData filename = Atom atomname orbitals
 	where 
 	      	--descriptions: string array of orbital description 
 	      descriptions =  [splitRow !! i | i <-[0..((length splitGeneral)-1)], (length (splitRow !! i) == 2)]
@@ -48,7 +50,7 @@ setAtomData filename = Atom name orbitals
 	      	--splitRow removes empty spaces
 	      splitRow = [removeItem "" $ split (dropDelims $ oneOf " ") (splitGeneral !! i) | i <- [0..((length splitGeneral)-1)]]
 	      
-	      name = (splitRow !! 0) !! 0 --first entry of splitRow
+	      atomname = (splitRow !! 0) !! 0 --first entry of splitRow
 	      orbitals = setAtomDatab 0 --start of recursive function
 
 
@@ -83,9 +85,9 @@ setAtomData filename = Atom name orbitals
 
 generateFile:: [Char] -> [Char] -> [Char]
      -> IO (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
-generateFile basis atomname filename = do
+generateFile basis atmname filename = do
 	createProcess (shell string) {cwd = Just "EMSL_Basis_Set_Exchange_Local/", std_out = CreatePipe}
-	where string = "python EMSL_api.py get_basis_data --basis " ++ basis ++" --atom " ++ atomname ++ " --treat_l > data/" ++ filename
+	where string = "python2.7 EMSL_api.py get_basis_data --basis " ++ basis ++" --atom " ++ atmname ++ " --treat_l > data/" ++ filename
 	      
 
 --main :: IO ()
