@@ -23,3 +23,16 @@
 - [ ] results
 - [ ] comparison
 - [ ] possible improvements
+
+### Implementation
+ - [x] parse Data from The python EMSL API to the programm
+ - [X] store Data in suitable data types
+ - [ ] functions for integrals involving gaussians
+ - [ ] functions for creating important matrices, e.g.:
+    - [ ] S-matrix
+    - [ ] h-matrix
+    - [ ] Coeff-matrix
+    - [ ] etc
+    
+    #### And most important:    
+- [ ] Hartree-Fock self consistency calculation
