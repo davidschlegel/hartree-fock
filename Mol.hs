@@ -1,13 +1,14 @@
 module Mol where
 
 import Read_basis
+import Data.Vector hiding ((++), sum, length)
 
 --data type Orbital: Contains all necessary information about a certain orbital
 data Mol = Mol {  molname :: String		--molecule name , eg "H20" etc.
-		, config :: [(Atom , [Double])] --configuration
+		, config :: [(Atom , Vector Double)] --configuration
 		} deriving (Show)
 
-geometry :: Mol -> [[Double]]
+geometry :: Mol -> [Vector Double]
 geometry mol = geom k
 	where 	k = length $ config mol
 		geom n 
@@ -36,9 +37,9 @@ molinfo mol = do
 			printAtoms mol 0 = putStrLn " "
 		 	printAtoms mol n = do 
 				putStrLn ("\tAtom:    " ++ atomname ( fst ( (config mol) !! (n-1))))
-				putStrLn  ("\t \t Number of Orbitals:" ++  "\t" ++ show (length ( orbitals ( fst ( (config mol) !!(n-1)))) ))
-				putStrLn ("\t \t contracted sets:" ++ "\t" ++ show( [description k | k <- orbitals (fst ( (config mol) !! (n-1)))]))
-				putStrLn ("\t \t geometry:" ++ "\t \t" ++ show( snd ( (config mol) !!(n-1)) ) )
+				putStrLn  ("\t \t Number of Orbitals:" ++  "\t" ++ show (length ( orbitals ( fst ( (config mol) !!(k-n)))) ))
+				putStrLn ("\t \t contracted sets:" ++ "\t" ++ show( [description k | k <- orbitals (fst ( (config mol) !! (k-n)))]))
+				putStrLn ("\t \t geometry:" ++ "\t \t" ++ show( snd ( (config mol) !!(k-n)) ) )
 				--putStrLn (str ++ orb)
 				printAtoms mol (n-1)
 				
