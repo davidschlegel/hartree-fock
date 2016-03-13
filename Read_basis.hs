@@ -6,7 +6,7 @@ import System.IO.Unsafe
 --import Text.PrettyPrint.Boxes
 import Data.List
 import Data.List.Split
-
+import Data.Vector hiding ((++), sum, length)
 
 
 --helper function
@@ -21,9 +21,9 @@ removeItem x (y:ys) = areTheySame x y ++ removeItem x ys
 
 --data type Orbital: Contains all necessary information about a certain orbital
 data Orbital = Orbital { description :: (String, Int) 	-- eg ("S", 3)
-			, numbering :: [Double] 	-- array of the numbering of gaussians
-		 	, exponents :: [Double] 	-- exponents of gaussians
-			, coeffs :: [Double]    	-- coefficients of gaussians
+			, numbering :: Vector Double 	-- array of the numbering of gaussians
+		 	, exponents :: Vector Double 	-- exponents of gaussians
+			, coeffs :: Vector Double    	-- coefficients of gaussians
 			} deriving (Show)
 
 --data type Atom: Collection of several (contracted) Orbitals
@@ -77,12 +77,13 @@ setAtomData filename = Atom atomname orbitals
 		|  n >= length descriptions    = [] --base case
 		| otherwise  = (Orbital description numbering exponents coeffs) : setAtomDatab (n+1) --recursion step
 		where description = get_description n
-	 	      numbering   = get_orbital 0 n
-	  	      exponents	  = get_orbital 1 n
-	 	      coeffs	  = get_orbital 2 n 
+	 	      numbering   = fromList $ get_orbital 0 n
+	  	      exponents	  = fromList $ get_orbital 1 n
+	 	      coeffs	  = fromList $ get_orbital 2 n 
 
 
-
+--generates a file with orbital data from EMSL_api.py
+--input: basis, atmname, filename
 generateFile:: [Char] -> [Char] -> [Char]
      -> IO (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
 generateFile basis atmname filename = do
