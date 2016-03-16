@@ -16,9 +16,11 @@ frac alpha beta = alpha*beta/(alpha + beta)
 
 --calculates weighted radius of two gaussians
 --input: alpha, beta rA, rB
-weightedR :: Fractional b => b -> Vector b -> b -> Vector b -> Vector b
-weightedR a rA b rB =  V.map(/(a+b)) $ V.zipWith (+) (V.map (b*)  rB) (V.map (a*)  rA)
+center :: Fractional b => b -> Vector b -> b -> Vector b -> Vector b
+center a rA b rB =  V.map(/(a+b)) $ V.zipWith (+) (V.map (b*)  rB) (V.map (a*)  rA)
 
+--error function calculation
+f_0 x = sqrt(pi)/2 * 1/sqrt(x) * erf (sqrt x)
 
 --Overlap integral for s orbitals
 --solves <1s,alpha, A | 1s, beta, B>
@@ -37,15 +39,49 @@ kinetic alpha beta rA rB = prefactor * exp(exponent)
 		exponent = - ((frac alpha beta) * distance rA rB)
 
 
+
 --Nuclear interaction integral
 --solves <1s,alpha, A | - Z/r_C | 1s, beta, B>
 nuclear :: Erf a => a -> a -> Vector a -> Vector a -> Vector a -> a -> a
 nuclear alpha beta rA rB rC z = pref1 * pref2 * exp(exponent)
 	where 	pref1 = -2*pi*z/(alpha + beta)
-		pref2 = 1/arg * erf arg
-		arg   = sqrt((distance (weightedR alpha rA beta rB) rC )   * (alpha*beta))
+		pref2 = f_0 arg
+		arg   = (distance (center alpha rA beta rB) rC )   * (alpha*beta)
 		exponent = - ((frac alpha beta) * (distance rA rB))
 
 --two-electron integral
 --important!
 --solves <1s,alpha, A ; 1s, beta, B | 1s,gamma, C ; 1s, delta, D >
+twoelectron :: Erf a => a -> a -> a -> a -> Vector a -> Vector a -> Vector a -> Vector a -> a
+twoelectron a b g d rA rB rC rD = pref * exp(exponent) * (f_0 arg)
+	where	pref = 			(2*pi**(5/2))/ 
+				( (a+g)*(b+d)*(a+b+g+d)**(1/2)   )
+		exponent = 	-a*g/(a+g) * (distance rA rC)
+				-b*d/(b+d) * (distance rB rD)
+		arg = (a+g)*(b+d)/(a+b+g+d) * ( distance (center a rA g rC) (center b rB d rD) )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
