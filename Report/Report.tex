@@ -166,13 +166,13 @@ To proceed to coupled quantum mechanical systems it seems to be mandatory to use
     \begin{align*}
     H &= \sum_{i=1}^N \frac{p_i^2}{2m} + \sum_{n=1}^K \frac{P_n^2}{2M_n} + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j\neq 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} \\ &-  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|} +  \frac{1}{4\pi \epsilon_0}\frac{1}{2} \sum_{n,n'=1;n\neq n'}^K \frac{Z_n Z_{n'} e^2}{|\mathbf{R}_n - \mathbf{R}_{n'}|} \text{,}
     \end{align*} where $m$ is the electron mass and $M_n$ the nuclei mass. The index $i$ refers to the electrons, the index $n$ to the nuclei.
-This hamiltonian describing the system looks quite complicated and in fact, computing the dynamics of this system seems to be unsolvable even for a few particles and an efficient super computer. Therefore, approximations must be made, still comprising the important information about the system. One approach is the Born-Oppenheimer approximation. It uses the fact that the nuclei are much heavier than the electrons, so the motions of the nuclei are much faster compared to the electrons, justifying to neglect the coulomb repulsion between the nuclei and the kinetic energy of the nuclei, so the approximated hamiltonian becomes
+This hamiltonian describing the system looks quite complicated and in fact, computing the dynamics of this system seems to be unsolvable even for a few particles and an efficient super computer. Therefore, approximations must be made, still comprising the important information about the system. One approach is the Born-Oppenheimer approximation. It uses the fact that the nuclei are much heavier than the electrons, so the motions of the nuclei are much slower compared to the electrons, justifying to neglect the coulomb repulsion between the nuclei and the kinetic energy of the nuclei, so the approximated hamiltonian becomes
 \begin{align}\label{eq:H_BO}
 H_\text{BO} = \sum_{i=1}^N \frac{p_i^2}{2m}  + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j = 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} -  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|}  \text{.}
 \end{align}  
 The positions of the nuclei can be varied to find the minimum of the total energy.
     \subsection{The Hartree-Fock Method and Equations}
- In equation (\ref{eq:H_BO}) the antisymmetry of the wave functions was not taken into account. Fock extended the so called \textit{Hartree equation} by taking antisymmetry into account. The derivation of the \textit{Hartree} and \textit{Hartree-Fock equations} will not be given here, since the main aim here is the implementation of the method. Therefore see e.g. \cite[p. 56-60]{Thijssen2007} and \cite[chapter 3]{Jensen2013}. The \textit{Fock operator} is in natural units given by
+ In equation (\ref{eq:H_BO}) the antisymmetry of the fermion wave functions was not taken into account. Fock extended the so called \textit{Hartree equation} by taking antisymmetry into account. The derivation of the \textit{Hartree} and \textit{Hartree-Fock equations} will not be given here, since the main aim here is the implementation of the method. Therefore see e.g. \cite[p. 56-60]{Thijssen2007} and \cite[chapter 3]{Jensen2013}. The \textit{Fock operator} is in natural units given by
  \begin{align} \label{eq:hf}
  \mathcal{F}\psi_k = &\left[-\frac{1}{2} \nabla^2 
  - \sum_n \frac{Z_n}{|\mathbf{r}- \mathbf{R}_n|}\right]\psi_k(\mathbf{x}) + \nonumber
@@ -208,12 +208,32 @@ The positions of the nuclei can be varied to find the minimum of the total energ
      \sum_{p=1}^M C_{pk} \int \chi_\nu^*(\vec{x})  \mathcal{F} (\vec{x}) \chi_p(\vec{x})\text{d}^3 \vec{x} & =  \epsilon_k  \sum_{p=1}^M C_{pk} \int \chi_\nu^*(\vec{x}) \chi_p(\vec{x})\text{d}^3 \vec{x}   \text{.}
     \end{align*}
     This can be written in matrix notation of the Hartree-Fock equations, expressed in the atomic orbital basis:
-    \begin{align*}
-    \sum_{p=1}^M C_{pk} F_{\nu p}  &= \epsilon_k \sum_{p=1}^M C_{pk} S_{\nu p}\\
+    \begin{align}\label{eq:roothaaneq}
+    \sum_{p=1}^M C_{pk} F_{\nu p}  &= \epsilon_k \sum_{p=1}^M C_{pk} S_{\nu p}\nonumber\\
     \mathbf{F} \mathbf{C_k} &= \epsilon_k \mathbf{S} \mathbf{C_k} \; \text{,}
-    \end{align*} which is called the \textit{Roothaan equation}.
+    \end{align} which is called the \textit{Roothaan equation}.
     Since the Fock operator itself depends on $\mathbf{C_k}$ we have the problem of self consistency, because $\mathcal{F}$ has the solution already inside. The Self Consistent Field Method (SCF) uses the approach to solve the above equation iteratively, until the solution deviates only small from the next iteration.
-    
+\par Equation (\ref{eq:roothaaneq}) looks similar to the Hartree-Fock equation, but here $\mathbf{S}$ is the overlap matrix for the given orbital basis $\chi_p (\mathbf{r})$. In comparison with eq. (\ref{eq:hf}) we can write the Fock matrix as \cite{Thijssen2007}
+\begin{align*}
+F_{pq} = h_{pq} + \sum\limits_k \sum\limits_{rs} C_{rk}^* C_{sk} \left( 2 \left<pr|g|qs\right> -  \left<pr|g|sq\right> \right)\text{,}
+\end{align*} where $h_{pq}$ is identified with the first term of the Fock operator
+\begin{align*}
+h_{pq} = \left< p|h|q\right> = \int \d^3 r \chi_p^*(\mathbf{r})\left[ -\frac{1}{2} \nabla^2 - \sum\limits_n \frac{Z_n}{\left| \mathbf{R}_n -\mathbf{r} \right|} \right]\chi_q(\mathbf{r})\text{.}
+\end{align*} The terms $\left<pr|g|qs\right>$ and $\left<pr|g|sq\right>$ are the two-electron integrals given by
+\begin{align*}
+\left<pr|g|qs\right> = \int \d^3 r_1 \d^3 r_2 \chi_p^*(\mathbf{r}_1) \chi_r^*(\mathbf{r}_2) \frac{1}{\left| \mathbf{r}_1 -\mathbf{r}_2 \right|} \chi_q(\mathbf{r}_1) \chi_s(\mathbf{r}_2) \text{.}
+\end{align*} Here $p$, $q$, $r$ and $s$ label the basis functions and $k$ labels the orbitals $\phi_k$.
+For simplicity and implementation it is convenient to define the density matrix as
+\begin{align*}
+P_{pq} = 2\sum\limits_k C_{pk}^* C_{qk} \text{,}
+\end{align*} where the factor $2$ is conventionally due to the spin \cite{Thijssen2007}.
+Now the Fock matrix reads
+\begin{align*}
+F_{pq} = h_{pq} + \sum\limits_{rs} P_{sr} \left( 2 \left<pr|g|qs\right> -  \left<pr|g|sq\right> \right)\text{.}
+\end{align*} In this orbital representation the energy is given by
+\begin{align*}
+E = \sum\limits_{pq} P_{pq}h_{pq} + \frac{1}{2}  \sum\limits_{pqrs} P_{pq}P_{sr} \left[ \left<pr|g|qs\right> -  \frac{1}{2}\left<pr|g|sq\right> \right] \text{.}
+\end{align*}
     
     \subsection{Program Structure}
     \tikzstyle{decision} = [diamond, draw, fill=blue!20, 
@@ -226,13 +246,12 @@ The positions of the nuclei can be varied to find the minimum of the total energ
 \tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
     minimum height=2em]
 \tikzstyle{c} = [rectangle, draw, inner sep=0.5cm, dashed]
-    
-    
-    
+\begin{figure}[!h]
+\centering
+\scalebox{0.8}{   
 \begin{tikzpicture}[node distance = 3.3cm, auto]
     % Place nodes
     \node [block] (init) {choose set of basis functions $\chi$};
-    
     \node [block, below of=init] (hpq) {guess density matrix $\mathbf{P}$};
     \node [block, left of=hpq] (Spq) {overlap matrix $S_{pq}$};
     \node [block, right of=hpq] (prgqs) {two-electron integrals $\braket{pr|g|qs}$};
@@ -269,26 +288,10 @@ The positions of the nuclei can be varied to find the minimum of the total energ
     \path [line] (convergence) |- node [near start] {no} (G);
     \path [line] (convergence) -| node [near end] {yes} (done); 
     
-
-
-
-    
-
- %   \node [block, below of=identify] (evaluate) {evaluate candidate models};
-  %  \node [block, left of=evaluate, node distance=3cm] (update) {update model};
-   % \node [decision, below of=evaluate] (decide) {is best candidate better?};
-    %\node [block, below of=decide, node distance=3cm] (stop) {stop};
-    % Draw edges
- %   \path [line] (init) -- (identify);
-  %  \path [line] (identify) -- (evaluate);
-  %  \path [line] (evaluate) -- (decide);
-  %  \path [line] (decide) -| node [near start] {yes} (update);
-  %  \path [line] (update) |- (identify);
-  %  \path [line] (decide) -- node {no}(stop);
-  %  \path [line,dashed] (expert) -- (init);
-  %  \path [line,dashed] (system) -- (init);
-  %  \path [line,dashed] (system) |- (evaluate);
 \end{tikzpicture}
+}
+\caption{General scheme of the program structure.}
+\end{figure}
     
     % bib stuff
     \nocite{*}
