@@ -16,6 +16,7 @@
 \begin{document}
 
 \input{titlepage}
+
 \section{Simple Quantum Systems}\label{1}
 In this chapter simple quantum systems will be studied. Consider a particle in a three-dimensional potential $V(\vec{x})$. The corresponding wave function $\psi(\vec{x}, t)$ is the solution of the Schrödinger equation
 \begin{equation}
@@ -68,7 +69,7 @@ Solving the above eigenvalue equation yields the eigenfunctions $\psi_n$ with ei
 \begin{figure}[!htb]
 	\Huge
 	\centering
-	\resizebox{!}{0.6\textwidth}{\input{figures/eigenfunctions.tex}}
+	\resizebox{!}{0.4\textwidth}{\input{figures/eigenfunctions.tex}}
 	\caption{Propability densities for the calculated eigenfunctions $\psi_n$, with the method of finite differences and a grid of $N=100$ for $n = 1,2,3$ and $4$ in one dimension. For simplicity the pre-factor $\frac{\hbar^2}{2m}$ was set to one, obtaining non-normalized eigenfunctions.}
 	\label{fig:eigenfunctions}
 \end{figure} 
@@ -226,6 +227,7 @@ E = \sum\limits_{pq} P_{pq}h_{pq} + \frac{1}{2}  \sum\limits_{pqrs} P_{pq}P_{sr}
 Here a general overview of the general program structure will be given.
 As outlined before it is important to consider a suitable set of basis functions describing the electrons electrons of the atoms. The accuracy and efficiency of the basis largely depend on the choice of the basis functions, so they need to be chosen carefully. For suitable calculations we use gaussian basis functions, so the important integrals can be calculated analytically. For a more detailed view on basis functions, see appendix \ref{App:AppendixA}.
 Below the program procedure is scetched.
+
 \begin{enumerate}
 	\item \textbf{Input data}:\\
 	Here the basis sets as well as the geometry of the atoms in the molecule will be provided and parsed to the program. Furthermore the numbers of electrons $N$ and the atomic charge numbers $Z_n$ are needed as input.
@@ -249,8 +251,9 @@ Below the program procedure is scetched.
 	\item \textbf{Output data}\\
 	The output is are the converged eigenstates $\mathbf{C}_k$ and its corresponding Fock levels.
 \end{enumerate}
+
 In figure \ref{skiz:programstructure} a schematic representation of the general program scheme is shown.
-    
+\newpage    
     
 \tikzstyle{decision} = [diamond, draw, fill=blue!20, text width=7em, text badly centered, node distance=5.7cm, inner sep=0pt]
 \tikzstyle{block} = [rectangle, draw, fill=blue!20,  text width=7em, text centered, rounded corners, minimum height=4em]
@@ -258,7 +261,7 @@ In figure \ref{skiz:programstructure} a schematic representation of the general 
 \tikzstyle{largeblock} = [rectangle, draw, fill=blue!20, text width=17em, text centered, rounded corners, minimum height=4em]
 \tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm, minimum height=2em]
 \tikzstyle{c} = [rectangle, draw, inner sep=0.5cm, dashed]
-\begin{figure}[!h]
+\begin{figure}[!htb]
 \centering
 \scalebox{0.8}{   
 \begin{tikzpicture}[node distance = 3.3cm, auto]
