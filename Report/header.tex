@@ -1,0 +1,76 @@
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,fit,calc,positioning}
+\usepackage{setspace}  %% Zur Setzung des Zeilenabstandes
+\usepackage[english,ngerman]{babel}     %% Sprachen-Unterstuetzung
+\usepackage{calc}      %% ermoeglicht Rechnen mit Laengen und Zaehlern
+\usepackage[T1]{fontenc}       %% Unterstutzung von Umlauten etc.
+%\usepackage[latin1]{inputenc}  %% 
+%% in aktuellem Linux & MacOS X wird standardmaessig UTF8 kodiert!
+\usepackage[utf8]{inputenc}    %% Wenn latin1 nicht geht ...
+\usepackage{subfigure}
+
+\usepackage{amsmath,amssymb} %% zusaetzliche Mathe-Symbole
+
+\usepackage{lmodern} %% type1-taugliche CM-Schrift als Variante zur
+                     %% "normalen" EC-Schrift
+%% Paket fuer bibtex-Datenbanken
+\usepackage[comma,numbers,sort&compress]{natbib}
+\bibliographystyle{plainnat}
+
+\newcommand{\tabheadfont}[1]{\textbf{#1}} %% Tabellenkopf in Fett
+\usepackage{booktabs}                      %% Befehle fuer besseres Tabellenlayout
+\usepackage{longtable}                     %% umbrechbare Tabellen
+\usepackage{array}                         %% zusaetzliche Spaltenoptionen
+
+%% umfangreiche Pakete fuer Symbole wie \micro, \ohm, \degree, \celsius etc.
+\usepackage{textcomp,gensymb}
+
+%\usepackage{SIunits} %% Korrektes Setzen von Einheiten
+\usepackage{units}   %% Variante fuer Einheiten
+
+%% Hyperlinks im Dokument; muss als eines der letzten Pakete geladen werden
+\usepackage[pdfstartview=FitH,      % Oeffnen mit fit width
+            breaklinks=true,        % Umbrueche in Links, nur bei pdflatex default
+            bookmarksopen=true,     % aufgeklappte Bookmarks
+            bookmarksnumbered=true  % Kapitelnummerierung in bookmarks
+            ]{hyperref}
+\usepackage{lipsum}
+%% Weiter benoetigte Pakete: datenumber
+%% Falls dieses Paket nicht in der Installation vorhanden ist,
+%% kann es von der Seite mit diesem Template heruntergeladen werden
+%% und in einem LaTeX bekanntem Verzeichnis installiert werden (notfalls
+%% dem Verzeichnis mit der Arbeit).
+\addtokomafont{sectioning}{\rmfamily}
+
+\usepackage{graphicx}
+
+\usepackage{mathtools}
+
+\usepackage{color} % for colored Text
+
+%\usepackage{physics}
+
+\usepackage[font={small,it}]{caption}
+\usepackage{subcaption}
+%\usepackage{pgf}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0em}
+%\usepackage{titlesec}
+%\titlespacing*{\subsection}
+%  {0pt}{2\baselineskip}{3\baselineskip}
+\usepackage[toc,page]{appendix}
+  
+\usepackage{braket}
+
+\usepackage{listings}
+%%%%%%%%%%%%%%%%%%%New Commmands%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\d}{\mathrm{d}}
+\newcommand{\dt}{\frac{\partial}{\partial t}}
+\newcommand{\dtau}{\frac{\partial}{\partial \tau}}
+
+\newcommand{\startsquarepar}{%
+    \par\begingroup \parfillskip 0pt \relax}
+\newcommand{\stopsquarepar}{%
+    \par\endgroup}  	
+

@@ -1,66 +1,54 @@
-% article example for classicthesis.sty
-\documentclass[10pt,a4paper]{article} % KOMA-Script article scrartcl
-\usepackage{lipsum}
-\usepackage{subfigure}
-\usepackage{braket}
-\usepackage{tikz}
-\usetikzlibrary{shapes,arrows,fit,calc,positioning}
-\usepackage[utf8]{inputenc}
-\usepackage{amsmath}
-\usepackage{url}
-\usepackage[nochapters]{classicthesis} % nochapters
-\usepackage{listings}
-%\usepackage[pdftex]{graphicx}
-\renewcommand{\i}{{\mathrm{i}}}
-\renewcommand{\d}{\mathrm{d}}
+\documentclass[twoside,        %% zweiseitiges Layout
+			   12pt,			%% Zeilenabstand
+               BCOR10mm,       %% Bindekorrektur 10 mm
+%               liststotoc,nomtotoc,bibtotoc, %% Aufnahme der div. Verzeichnisse
+                                              %% ins Inhaltsverzeichnis
+              % english,ngerman, %% Alternativspr. Englisch, Dokumentspr. Deutsch
+               ngerman,english  %% Alternativspr. Deutsch, Dokumentspr. Englisch
+%               final,          %% Endversion; draft fuer schnelles Kompilieren
+%				smallheadings,
+               ]{scrartcl}
+
+\input{header}
+
+
+
 \begin{document}
-    \title{\rmfamily\normalfont\spacedallcaps{Quantum Many-Body Simulations in Haskell}}
-    \author{\spacedlowsmallcaps{David Schlegel}}
-    \date{01.10.15} % no date
-    	
-    
-    \maketitle
-    
-    \begin{abstract}
-      Applying numerical methods in quantum mechanics has always been necessary in analysing complex structures of quantum mechanical systems. The technical progress of computer performance has enabled physicists and mathematicians to simulate complex many-body systems. With these methods tangible progress in quantum physics can be made, to analyse quantum phenomena on the level of many-particle interactions. This article focuses on the implementation of numerical methods for many-body simulation in the functional programming language \textbf{Haskell}. Functional programming languages get more and more interesting for physicists through their mathematical way of implementation. In this article simple quantum systems are simulated first and an overview of different numerical methods for solving the Schrödinger equation will be given following an attempt to proceed to many-body systems from simple quantum systems. 
-    \end{abstract}
-       
-    \tableofcontents
-    
-    \section{Simple Quantum Systems}\label{1}
-   In this chapter simple quantum systems will be studied. Consider a particle in a three-dimensional potential $V(\vec{x})$. The corresponding wave function $\psi(\vec{x}, t)$ is the solution of the Schrödinger equation
-   \begin{equation}
-  \i \hbar \frac{\partial}{\partial t} \psi(\vec{x}, t) = H \psi(\vec{x}, t) = - \frac{\hbar^2}{2m}	\Delta \psi(\vec{x}, t)+  V(\vec{x}) \psi(\vec{x}, t) \text{,}
-   \end{equation}
-   where $\Delta$ is the Laplacian differential operator: $\Delta = \frac{\partial^2}{\partial x^2} +\frac{\partial^2}{\partial y^2} + \frac{\partial^2}{\partial z^2} $. For a time-independent potential $V(\vec{x})$ the Schrödinger equation can be formally solved by 
-   
-   \begin{equation}
-     \psi(\vec{x}, t) = \text{U}(t, t_0) \psi(\vec{x}, t_0)   = \exp \left\{ - \frac{\i (t-t_0) }{\hbar} H \right\}  \psi(\vec{x}, t_0) \text{.}
-   \end{equation} 
-   For a time-dependent potential like an oscillating laserfield, the time evolution of the wave function becomes
-   \begin{align}
-   \psi(\vec{x}, t) &= \text{U}(t, t_0) \psi(\vec{x}, t_0)  = \hat{\text{T}}_t  \exp \left\{ \frac{\i}{h} \int_{t_0}^t H(\tau) \d \tau \right \}  \psi(\vec{x}, t_0)  \\
-   &=  \sum_{n = 0}^\infty \frac{1}{n} {\left( \frac{- \i}{\hbar} \right) }^n \int_{t_0}^t \d t_1\int_{t_0}^t \d t_2 \dots \int_{t_0}^t \d t_n \hat{\text{T}}_t \left\{ H(t_1)H(t_2) \dots H(t_n) \right\} \text{,} \nonumber
-   \end{align} 
-   where $\hat{\text{T}}_t$ is the time ordering operator. A simple approach is to divide the interval $[0 \dots t]$ into a sequence of $N$ steps so that
-   \begin{equation}
+
+\input{titlepage}
+\section{Simple Quantum Systems}\label{1}
+In this chapter simple quantum systems will be studied. Consider a particle in a three-dimensional potential $V(\vec{x})$. The corresponding wave function $\psi(\vec{x}, t)$ is the solution of the Schrödinger equation
+\begin{equation}
+  i\hbar \frac{\partial}{\partial t} \psi(\vec{x}, t) = H \psi(\vec{x}, t) = - \frac{\hbar^2}{2m}	\Delta \psi(\vec{x}, t)+  V(\vec{x}) \psi(\vec{x}, t) \text{,}
+\end{equation}
+where $\Delta$ is the Laplacian differential operator: $\Delta = \frac{\partial^2}{\partial x^2} +\frac{\partial^2}{\partial y^2} + \frac{\partial^2}{\partial z^2} $. For a time-independent potential $V(\vec{x})$ the Schrödinger equation can be formally solved by 
+\begin{equation}
+     \psi(\vec{x}, t) = \text{U}(t, t_0) \psi(\vec{x}, t_0)   = \exp \left\{ - \frac{i(t-t_0) }{\hbar} H \right\}  \psi(\vec{x}, t_0) \text{.}
+\end{equation} 
+For a time-dependent potential like an oscillating laserfield, the time evolution of the wave function becomes
+\begin{align}
+   \psi(\vec{x}, t) &= \text{U}(t, t_0) \psi(\vec{x}, t_0)  = \hat{\text{T}}_t  \exp \left\{ \frac{i}{h} \int_{t_0}^t H(\tau) \d \tau \right \}  \psi(\vec{x}, t_0)  \\
+   &=  \sum_{n = 0}^\infty \frac{1}{n} {\left( \frac{- i}{\hbar} \right) }^n \int_{t_0}^t \d t_1\int_{t_0}^t \d t_2 \dots \int_{t_0}^t \d t_n \hat{\text{T}}_t \left\{ H(t_1)H(t_2) \dots H(t_n) \right\} \text{,} \nonumber
+\end{align} 
+where $\hat{\text{T}}_t$ is the time ordering operator. A simple approach is to divide the interval $[0 \dots t]$ into a sequence of $N$ steps so that
+\begin{equation}
    \text{U}(t, t_0) = \text{U}(t, t_{N-1}) \dots \text{U}(t_2, t_1)\text{U}(t_1, t_0)
 \end{equation}   and to neglect small deviations of the Hamiltonian in the small interval $\Delta t = t_n - t_{n-1}$.
    
-    \subsection{Discretization of the kinetic Energy}
-    Dividing the Hamiltonian $H$ into $H = T + V$, the non-local kinetic energy operator can be written as
-    \begin{equation}
+\subsection{Discretization of the kinetic Energy}
+Dividing the Hamiltonian $H$ into $H = T + V$, the non-local kinetic energy operator can be written as
+\begin{equation}
     T \psi(\vec{x}, t) = - \frac{\hbar^2}{2m} \Delta \psi(\vec{x}, t) \text{.}
-    \end{equation}
+\end{equation}
     
-    \subsubsection{Method of Finite Differences}
-    Taking a grid $(k,l,m)$ in three dimensions, the kinetic energy operator can be approximated by finite differences
-    \begin{flalign}
+\subsubsection{Method of Finite Differences}
+Taking a grid $(k,l,m)$ in three dimensions, the kinetic energy operator can be approximated by finite differences
+\begin{flalign}
    &  T \psi(\vec{x}, t) =  - \frac{\hbar^2}{2m}  \left(  
      \frac{\psi_{(k+1,l,m)}^n -2 \psi_{(k,l,m)}^n + \psi_{(k-1,l,m)}^n}{\Delta x^2} +\right. \nonumber \\
      & \left . \frac{\psi_{(k,l+1,m)}^n -2 \psi_{(k,l,m)}^n + \psi_{(k,l-1,m)}^n}{\Delta y^2} +
        \frac{\psi_{(k,l,m+1)}^n -2 \psi_{(k,l,m)}^n + \psi_{(k,l,m-1)}^n}{\Delta z^2} \right)
-    \end{flalign} with higher order terms $\mathcal{O}(\Delta x^2, \Delta y^2, \Delta z^2 )$ where $n$ represents the discrete time index of the wave function. Considering the time independent Schrödinger equation we can write the operator in one dimension as a matrix satisfying the eigenvalue equation
+\end{flalign} with higher order terms $\mathcal{O}(\Delta x^2, \Delta y^2, \Delta z^2 )$ where $n$ represents the discrete time index of the wave function. Considering the time independent Schrödinger equation we can write the operator in one dimension as a matrix satisfying the eigenvalue equation
  \begin{align}
 \left[ \begin{pmatrix}
 2	& -1	& &  \dots	 & 0      \\
@@ -108,10 +96,10 @@ In figure \ref{fig:2d_eigenfunction} an example of an eigenstate for a particle 
 	\hspace*{-1.5in}
 	\centering
 	\subfigure[Color map, $\psi_{12}$, $N=60$.]
-		{\resizebox{!}{0.38\textwidth}{\input{figures/2dn12.tex}}\label{fig:2d_eigenfunction}}
+		{\resizebox{!}{0.28\textwidth}{\input{figures/2dn12.tex}}\label{fig:2d_eigenfunction}}
 	%\hfill
 	\subfigure[Surface graphic, $\psi_{34}$, $N=100$.]
-		{\resizebox{0.58\textwidth}{!}{\includegraphics{figures/2dn34_surf.pdf}}\label{fig:2d_surf_eigenfunction}}\\
+		{\resizebox{0.48\textwidth}{!}{\includegraphics{figures/2dn34_surf.pdf}}\label{fig:2d_surf_eigenfunction}}\\
 	 %\hfill
 	\caption{Propability densities for the calculated eigenfunctions with the method of finite differences and a grid of $N=100$ and $N=60$ in two dimensions. For simplicity the pre-factor $\hbar^2 /2m$ was set to one, obtaining non-normalized eigenfunctions.}
 	\label{Aufbauskizze}
@@ -148,41 +136,40 @@ Still Missing: Comparison with exact results
 
 Referring back to the time expansion in chapter \ref{1}, the time evolution of an eigenfunction of the hamiltonian is trivial, since $\psi_t$ only differs in phase from the initial state $\psi_0$, so ${|\psi_t|}^2$ is time-independent, although linear combinations of eigenfunctions depend on time, which will not be calculated here.\\
 
-If we take the computing time into account, it is obvious that even with a small grid size $N<100$ and parallelized computing the simulation of a particle in a square well potential lead to a unexecutable applications. The increase of dimensions with constant gridsize results in a growing computing time higher than $\mathcal O (t_0^n)$. \\
+If we take the computing time into account, it is obvious that even with a small grid size $N<100$ and parallelized computing the simulation of a particle in a square well potential lead to unexecutable applications. The increase of dimensions with constant gridsize results in a growing computing time higher than $\mathcal O (t_0^n)$. \\
 
 To proceed to coupled quantum mechanical systems it seems to be mandatory to use efficient approximations.
 
 
 
 
-    \section{Many-Body Simulations}
+\section{Many-Body Simulations}
     
-    Consider a real physical system, where particles are not independent like in atoms, ions, molecules, etc. . Assuming the system consists only of $K$ nuclei and $N$ electrons the hamiltonian consists of the terms
+Consider a real physical system, where particles are not independent like in atoms, ions, molecules, etc. . Assuming the system consists only of $K$ nuclei and $N$ electrons the hamiltonian consists of the terms
 \begin{align*}
     H = T_i + T_n+ V_{ii} + V_{in} + V_{nn} \text{ ,}
 \end{align*} 
-    where $T_i $ and $T_n$ are the kinetic energies of the electrons and nuclei, respectively. $V_{ii}$ represents the Coulomb repulsion between electrons, $V_{nn}$ between the nuclei and $V_{in}$  the attraction between electrons and nuclei. So the hamiltonian reads
-    
-    \begin{align*}
+where $T_i $ and $T_n$ are the kinetic energies of the electrons and nuclei, respectively. $V_{ii}$ represents the Coulomb repulsion between electrons, $V_{nn}$ between the nuclei and $V_{in}$  the attraction between electrons and nuclei. So the hamiltonian reads
+\begin{align*}
     H &= \sum_{i=1}^N \frac{p_i^2}{2m} + \sum_{n=1}^K \frac{P_n^2}{2M_n} + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j\neq 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} \\ &-  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|} +  \frac{1}{4\pi \epsilon_0}\frac{1}{2} \sum_{n,n'=1;n\neq n'}^K \frac{Z_n Z_{n'} e^2}{|\mathbf{R}_n - \mathbf{R}_{n'}|} \text{,}
-    \end{align*} where $m$ is the electron mass and $M_n$ the nuclei mass. The index $i$ refers to the electrons, the index $n$ to the nuclei.
+\end{align*} where $m$ is the electron mass and $M_n$ the nuclei mass. The index $i$ refers to the electrons, the index $n$ to the nuclei.
 This hamiltonian describing the system looks quite complicated and in fact, computing the dynamics of this system seems to be unsolvable even for a few particles and an efficient super computer. Therefore, approximations must be made, still comprising the important information about the system. One approach is the Born-Oppenheimer approximation. It uses the fact that the nuclei are much heavier than the electrons, so the motions of the nuclei are much slower compared to the electrons, justifying to neglect the coulomb repulsion between the nuclei and the kinetic energy of the nuclei, so the approximated hamiltonian becomes
 \begin{align}\label{eq:H_BO}
 H_\text{BO} = \sum_{i=1}^N \frac{p_i^2}{2m}  + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j = 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} -  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|}  \text{.}
 \end{align}  
 The positions of the nuclei can be varied to find the minimum of the total energy.
-    \subsection{The Hartree-Fock Method and Equations}
- In equation (\ref{eq:H_BO}) the antisymmetry of the fermion wave functions was not taken into account. Fock extended the so called \textit{Hartree equation} by taking antisymmetry into account. The derivation of the \textit{Hartree} and \textit{Hartree-Fock equations} will not be given here, since the main aim here is the implementation of the method. Therefore see e.g. \cite[p. 56-60]{Thijssen2007} and \cite[chapter 3]{Jensen2013}. The \textit{Fock operator} is in natural units given by
+\subsection{The Hartree-Fock Method and Equations}
+In equation (\ref{eq:H_BO}) the antisymmetry of the fermion wave functions was not taken into account. Fock extended the so called \textit{Hartree equation} by taking antisymmetry into account. The derivation of the \textit{Hartree} and \textit{Hartree-Fock equations} will not be given here, since the main aim here is the implementation of the method. Therefore see e.g. \cite[p. 56-60]{Thijssen2007} and \cite[chapter 3]{Jensen2013}. The \textit{Fock operator} is in natural units given by
  \begin{align} \label{eq:hf}
  \mathcal{F}\psi_k = &\left[-\frac{1}{2} \nabla^2 
  - \sum_n \frac{Z_n}{|\mathbf{r}- \mathbf{R}_n|}\right]\psi_k(\mathbf{x}) + \nonumber
  \sum_{l=1}^N \int \text{d}x' |\psi_l(\mathbf{x}')|^2 \frac{1}{|\mathbf{r}-\mathbf{r}'|} \psi_k(\mathbf{x}) \\
 &- \sum_{l=1}^N \int \text{d}x' \psi^*(\mathbf{x}')\frac{1}{|\mathbf{r}-\mathbf{r}'|} \psi_k(\mathbf{x}')\psi_l(\mathbf{x})\text{,}
- \end{align}
+\end{align}
  satisfying the \textit{Hartree-Fock equation}
- \begin{align*}
- \mathcal{F} \psi_k = \epsilon_k \psi_k \text{.}
- \end{align*} The fourth term in equation (\ref{eq:hf}) is called the exchange term \cite[p. 55]{Thijssen2007} and is nonlocal since the operator is acting on $\psi_k$, but the value at the position $\mathbf{r}$ is determined by the value assumed by $\psi_k$ at all possible positions $\mathbf{r}'$. The eigenvalues $\epsilon_k$ of the Fock operator are related to the total energy by
+\begin{align*}
+\mathcal{F} \psi_k = \epsilon_k \psi_k \text{.}
+\end{align*} The fourth term in equation (\ref{eq:hf}) is called the exchange term \cite[p. 55]{Thijssen2007} and is nonlocal since the operator is acting on $\psi_k$, but the value at the position $\mathbf{r}$ is determined by the value assumed by $\psi_k$ at all possible positions $\mathbf{r}'$. The eigenvalues $\epsilon_k$ of the Fock operator are related to the total energy by
  \begin{align*}
  E &= \frac{1}{2} \sum_k [\epsilon_k + \braket{\psi_k|h|\psi_k}] \text{, with}\\
  \braket{\psi_k|h|\psi_k} &= \int \text{d}^3\mathbf{x}\; \psi_k^*(\mathbf{x}) \left[-\frac{1}{2} \nabla^2 
@@ -192,27 +179,27 @@ The positions of the nuclei can be varied to find the minimum of the total energ
     
     
     
-    \subsection{The Roothaan Equation}
-    For molecules numerical basis sets are not efficient, so we use atom centered basis sets to describe the molecular orbital
-    \begin{align}\label{eq:orbital}
+\subsection{The Roothaan Equation}
+For molecules numerical basis sets are not efficient, so we use atom centered basis sets to describe the molecular orbital
+\begin{align}\label{eq:orbital}
     \psi_k(\vec{x}) = \sum_{p=1}^M C_{pk} \chi_p (\vec{x})\text{,}
-    \end{align}
-    with $k = 1,\dots, M$, where $M$ is the number of basis states.
-    So the Hartree-Fock equation reads
-    \begin{align*}
+\end{align}
+with $k = 1,\dots, M$, where $M$ is the number of basis states.
+So the Hartree-Fock equation reads
+\begin{align*}
     \mathcal{F} (\vec{x})   \psi_k(\vec{x}) &= \epsilon_k    \psi_k(\vec{x})\text{.} \quad \text{Using Eq. (\ref{eq:orbital}) yields}\\
     \mathcal{F} (\vec{x})  \sum_{p=1}^M C_{pk} \chi_p (\vec{x}) &= \epsilon_k \sum_{p=1}^M C_{pk} \chi_p (\vec{x})\text{.}\\
-    \end{align*}
-    We can now multiply from the left by a specific basis function $\chi_\nu$. Integrating over the space yields
-    \begin{align*}
+\end{align*}
+We can now multiply from the left by a specific basis function $\chi_\nu$. Integrating over the space yields
+\begin{align*}
      \sum_{p=1}^M C_{pk} \int \chi_\nu^*(\vec{x})  \mathcal{F} (\vec{x}) \chi_p(\vec{x})\text{d}^3 \vec{x} & =  \epsilon_k  \sum_{p=1}^M C_{pk} \int \chi_\nu^*(\vec{x}) \chi_p(\vec{x})\text{d}^3 \vec{x}   \text{.}
-    \end{align*}
-    This can be written in matrix notation of the Hartree-Fock equations, expressed in the atomic orbital basis:
-    \begin{align}\label{eq:roothaaneq}
+\end{align*}
+This can be written in matrix notation of the Hartree-Fock equations, expressed in the atomic orbital basis:
+\begin{align}\label{eq:roothaaneq}
     \sum_{p=1}^M C_{pk} F_{\nu p}  &= \epsilon_k \sum_{p=1}^M C_{pk} S_{\nu p}\nonumber\\
     \mathbf{F} \mathbf{C_k} &= \epsilon_k \mathbf{S} \mathbf{C_k} \; \text{,}
-    \end{align} which is called the \textit{Roothaan equation}.
-    Since the Fock operator itself depends on $\mathbf{C_k}$ we have the problem of self consistency, because $\mathcal{F}$ has the solution already inside. The Self Consistent Field Method (SCF) uses the approach to solve the above equation iteratively, until the solution deviates only small from the next iteration.
+\end{align} which is called the \textit{Roothaan equation}.
+Since the Fock operator itself depends on $\mathbf{C_k}$ we have the problem of self consistency, because $\mathcal{F}$ has the solution already inside. The Self Consistent Field Method (SCF) uses the approach to solve the above equation iteratively, until the solution deviates only small from the next iteration.
 \par Equation (\ref{eq:roothaaneq}) looks similar to the Hartree-Fock equation, but here $\mathbf{S}$ is the overlap matrix for the given orbital basis $\chi_p (\mathbf{r})$. In comparison with eq. (\ref{eq:hf}) we can write the Fock matrix as \cite{Thijssen2007}
 \begin{align*}
 F_{pq} = h_{pq} + \sum\limits_k \sum\limits_{rs} C_{rk}^* C_{sk} \left( 2 \left<pr|g|qs\right> -  \left<pr|g|sq\right> \right)\text{,}
@@ -235,16 +222,41 @@ F_{pq} = h_{pq} + \sum\limits_{rs} P_{sr} \left( 2 \left<pr|g|qs\right> -  \left
 E = \sum\limits_{pq} P_{pq}h_{pq} + \frac{1}{2}  \sum\limits_{pqrs} P_{pq}P_{sr} \left[ \left<pr|g|qs\right> -  \frac{1}{2}\left<pr|g|sq\right> \right] \text{.}
 \end{align*}
     
-    \subsection{Program Structure}
-    \tikzstyle{decision} = [diamond, draw, fill=blue!20, 
-    text width=7em, text badly centered, node distance=5.7cm, inner sep=0pt]
-\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
-    text width=7em, text centered, rounded corners, minimum height=4em]
-\tikzstyle{line} = [draw, -latex']
-\tikzstyle{largeblock} = [rectangle, draw, fill=blue!20, 
-    text width=17em, text centered, rounded corners, minimum height=4em]
-\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
-    minimum height=2em]
+\subsection{Program Structure}
+Here a general overview of the general program structure will be given.
+As outlined before it is important to consider a suitable set of basis functions describing the electrons electrons of the atoms. The accuracy and efficiency of the basis largely depend on the choice of the basis functions, so they need to be chosen carefully. For suitable calculations we use gaussian basis functions, so the important integrals can be calculated analytically. For a more detailed view on basis functions, see appendix \ref{App:AppendixA}.
+Below the program procedure is scetched.
+\begin{enumerate}
+	\item \textbf{Input data}:\\
+	Here the basis sets as well as the geometry of the atoms in the molecule will be provided and parsed to the program. Furthermore the numbers of electrons $N$ and the atomic charge numbers $Z_n$ are needed as input.
+	\item \textbf{Calulate independent matrices}\\
+	All matrices that are independent of the eigenvectors $\mathbf{C}_k$ can be calculated:
+	\begin{itemize}
+		\item The overlap matrix $S_pq$,
+		\item The two-electron integrals $\braket{pr|g|qs}$,
+		\item The uncoupled one-electron Hamiltonian $h_{pq}$.
+	\end{itemize}
+	\item \textbf{Make an initial guess for the density matrix $\mathbf{P}$.}\\
+	A possibility is to use $\mathbf{P} = 0$ as an initial guess, which means that the electrons only feel the nuclei but not each other.
+	\item \textbf{Self-consistency procedure}\\
+	This program section is the most important, since in solves the Roothaan equation recursively. It consist of the following steps.
+	\begin{itemize}
+		\item Calculate the Coulomb and exchange contributions to the Fock matrix,
+		\item Construct the Fock matrix,
+		\item Solve the Roothaan equation by diagonalization of the Fock matrix for the given density matrix $\mathbf{P}$,
+		\item With the obtained eigenvectors a new density matrix is $\mathbf{P}$ is constructed.
+	\end{itemize}
+	\item \textbf{Output data}\\
+	The output is are the converged eigenstates $\mathbf{C}_k$ and its corresponding Fock levels.
+\end{enumerate}
+In figure \ref{skiz:programstructure} a schematic representation of the general program scheme is shown.
+    
+    
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, text width=7em, text badly centered, node distance=5.7cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20,  text width=7em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, 'latex']
+\tikzstyle{largeblock} = [rectangle, draw, fill=blue!20, text width=17em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm, minimum height=2em]
 \tikzstyle{c} = [rectangle, draw, inner sep=0.5cm, dashed]
 \begin{figure}[!h]
 \centering
@@ -258,8 +270,7 @@ E = \sum\limits_{pq} P_{pq}h_{pq} + \frac{1}{2}  \sum\limits_{pqrs} P_{pq}P_{sr}
     \node [block, right of=prgqs] (Ppq) {uncoupled one-electron Hamiltonian $h_{pq}$};
     \node [block, below of=Spq] (VSV) {bring $\mathbf{S}$ to unitform, s.th $\mathbf{V^\dagger SV}  = \mathbf{1}$};
     
-    \node [largeblock, below of=prgqs] (G) {Coulomb and exchange contributions to the Fock matrix. \
-    									 $G_{pq}=\sum_{rs}P_{rs} \left[\braket{pr|g|qs} - \frac{1}{2} \braket{pr|g|sq}\right]$};
+    \node [largeblock, scale=0.9, below of=prgqs] (G) {Coulomb and exchange contributions to the Fock matrix. {\small $G_{pq}=\sum_{rs}P_{rs} \left[\braket{pr|g|qs} - \frac{1}{2} \braket{pr|g|sq}\right]$}};
     \node [block, below left of=G] (F) {Fock matrix \mbox{$F_{pq} = h_{pq} + G_{pq}$}};
     \node [block, below of=F] (diagF) {solving $\mathbf{F C} = \epsilon \mathbf{C}$ by diagonalization of $\mathbf{F}$};
     \node [block, below of=diagF] (newP) {construct  new density matrix through \mbox{$ P_{pq} = 2 \sum C_{pk} C_{pk}^*$}};
@@ -291,14 +302,17 @@ E = \sum\limits_{pq} P_{pq}h_{pq} + \frac{1}{2}  \sum\limits_{pqrs} P_{pq}P_{sr}
 \end{tikzpicture}
 }
 \caption{General scheme of the program structure.}
+\label{skiz:programstructure}
 \end{figure}
-    
+\pagebreak
+\begin{appendices}
+\section{Basis Functions} \label{App:AppendixA}
+\end{appendices}
+\pagebreak
+
+
+
     % bib stuff
     \nocite{*}
-    \addtocontents{toc}{\protect\vspace{\beforebibskip}}
-    \addcontentsline{toc}{section}{\refname}    
-    \bibliographystyle{plain}
-    \bibliography{Bibliography}
+\bibliography{bibfile} 
 \end{document}
-
-
