@@ -36,8 +36,8 @@ data Atom = Atom {atomname :: String	-- name of the Atom e.g. "CARBON"
 --main function: setAtomData
 --input: filatomname of the textfile where the basis set of the given atom is stored
 --output: Atom; data type described above
-setAtomData :: [Char] -> Atom
-setAtomData filename = Atom atomname orbitals
+getAtomData :: [Char] -> Atom
+getAtomData filename = Atom atomname orbitals
 	where 
 	      	--descriptions: string array of orbital description 
 	      descriptions =  [splitRow !! i | i <-[0..((length splitGeneral)-1)], (length (splitRow !! i) == 2)]
