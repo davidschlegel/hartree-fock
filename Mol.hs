@@ -1,7 +1,7 @@
 module Mol where
 
 import Read_basis
-
+import Data.Maybe
 import Numeric.LinearAlgebra
 import Numeric.Container hiding (linspace)
 import Numeric.LinearAlgebra.Data hiding (linspace)
@@ -46,4 +46,26 @@ molinfo mol = do
 				putStrLn ("\t \t geometry:" ++ "\t \t" ++ show( toList $ snd ( (config mol) !!(k-n)) ) )
 				--putStrLn (str ++ orb)
 				printAtoms mol (n-1)
+
+
+--Show atoms with corresponding positions
+--Especially for viewing the molecule in a different graphical program, s.a. molden
+molprint :: Mol -> IO ()
+molprint mol = do
+	putStrLn ""
+	printAtoms mol k
+		where
+			--Little helper for printing lists tab-separated
+			printList []	= ""
+			printList list = "\t" ++ show(list !! 0) ++ printList (snd ( Prelude.splitAt 1 list))
+			--Dictionary
+			dict = [("CARBON", "C"), ("NITROGEN", "N"), ("OXYGEN", "O"), ("HYDROGEN", "H")] 	
+			k = length $ config mol
+			printAtoms mol 0 = putStrLn " "
+		 	printAtoms mol n = do 
+			putStrLn (" " ++ fromJust ( lookup (atomname ( fst ( (config mol) !! (n-1)))) dict)  ++ printList (toList ( (geometry mol) !! (k-n))))
+			printAtoms mol (n-1)
+
+
+
 				
