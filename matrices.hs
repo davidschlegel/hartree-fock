@@ -1,10 +1,9 @@
---module Matrices where
+module Matrices where
 
 import Gauss
 import Mol
 import Read_basis
 import Numeric.Container
---import Data.Vector hiding (sum, length, fromList)
 import Data.Maybe
 
 

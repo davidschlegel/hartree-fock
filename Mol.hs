@@ -2,10 +2,9 @@ module Mol where
 
 import Read_basis
 import Data.Maybe
-import Numeric.LinearAlgebra
 import Numeric.Container hiding (linspace)
-import Numeric.LinearAlgebra.Data hiding (linspace)
---import Data.Vector hiding ((++), sum, length)
+
+
 
 --data type Orbital: Contains all necessary information about a certain orbital
 data Mol = Mol {  molname :: String		--molecule name , eg "H20" etc.

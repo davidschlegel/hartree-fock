@@ -1,13 +1,12 @@
 module Read_basis where
 
+
 import System.Process
 import System.IO
 import System.IO.Unsafe
---import Text.PrettyPrint.Boxes
 import Data.List
 import Data.List.Split
 import Numeric.Container
---import Data.Vector hiding ((++), sum, length)
 
 
 --helper function

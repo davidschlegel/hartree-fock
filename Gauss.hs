@@ -1,12 +1,9 @@
 module Gauss where
 
-import Mol
-import Read_basis
---import Data.Number.Erf --error function
--- import Data.Vector as V
-import Numeric.LinearAlgebra
+
 import Numeric.Container hiding (linspace)
 import Numeric.LinearAlgebra.Data hiding (linspace)
+
 
 -- Here all importand integrals involving gaussian functions will be evaluated.
 
