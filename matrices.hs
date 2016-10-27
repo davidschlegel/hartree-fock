@@ -4,7 +4,8 @@ import Gauss
 import Mol
 import Read_basis
 import Numeric.Container
-import Data.Vector hiding (sum, length, fromList)
+--import Data.Vector hiding (sum, length, fromList)
+import Data.Maybe
 
 
 --Get orbitals from i-indexed Atom for a given molecule
@@ -18,25 +19,25 @@ getorbitals mol i = orbitals $ (fst ((config mol) !! i))
 --Get list of coefficients out of a given set (list of Orbitals)
 --Input:		List of Orbitals
 --Output:	List of Coefficient Vectors 
-getcoeffs :: [Orbital] -> [Data.Vector.Vector Double]
+getcoeffs :: [Orbital] -> [Vector Double]
 getcoeffs set = [coeffs i | i <- set]
 
 
 --Get list of exponents out of a given set (list of Orbitals)
 --Input:		List of Orbitals
 --Output:	List of Exponent Vectors 
-getexps :: [Orbital] -> [Data.Vector.Vector Double]
+getexps :: [Orbital] -> [Vector Double]
 getexps set = [exponents i | i <- set]
 
 
 --Get position vector for i-th Atom
-getposofatom :: Mol -> Int -> Numeric.Container.Vector Double
+getposofatom :: Mol -> Int -> Vector Double
 getposofatom mol i = geometry mol !! i
 
 
 --element wise zipped list (first coeff, second exp)
-zippedVector :: Data.Vector.Vector Double -> Data.Vector.Vector Double -> [(Double, Double)]
-zippedVector a b = Data.Vector.toList $ Data.Vector.zipWith (,) a b
+zippedVector :: Vector Double -> Vector Double -> [(Double, Double)]
+zippedVector a b = zipWith (,) (toList a) (toList b)
 
 
 --Converts the indices used for matrix calculations for a given molecule to a multiindex (m,n)
@@ -59,9 +60,9 @@ nbasisfunctions mol = sum [length ( orbitals ( fst ( (config mol) !!(i)))) | i <
 --Calculates the S-Matrix that contains the overlap of the orbitals
 --Input: Molecule
 --Output: S_Matrix, property: symmetric
-s_pq :: Mol -> Matrix Double
+s_mat :: Mol -> Matrix Double
 --Building the Matrix: Size = nbasisfuctions of molecule
-s_pq mol  = buildMatrix (nbasisfunctions mol) (nbasisfunctions mol) (\(i,j) -> calculateoverlap mol i j)
+s_mat mol  = buildMatrix (nbasisfunctions mol) (nbasisfunctions mol) (\(i,j) -> calculateoverlap mol i j)
 	where
 
 		-- Actual function that calculates the overlap of the orbitals
@@ -91,6 +92,131 @@ s_pq mol  = buildMatrix (nbasisfunctions mol) (nbasisfunctions mol) (\(i,j) -> c
 				--				combined in every possible way with coeffs and exps of index j
 				--				Length of List should be orderofcontraction_i x orderofcontractin_j 
 				overlaplist = [(fst i)*(fst j)* ( overlaps (snd i) (snd j) posi posj) | i <- zippedList_i , j <- zippedList_j]
+
+
+
+--Calculates the kinetic-Matrix that contains the kinetic interactions of the orbitals
+--Input: Molecule
+--Output: 	kinetic_Matrix, property: symmetric
+--				<alpha, A|-Nabla^2|beta,B>
+--Reference: Eq. 4.101 p. 74 Thijssen
+kin_mat :: Mol -> Matrix Double
+kin_mat mol  = buildMatrix (nbasisfunctions mol) (nbasisfunctions mol) (\(i,j) -> calculatekinetic mol i j)
+	where
+
+		-- Actual function that calculates the kinetic interactions of the orbitals
+		--Input: 	Molecule
+		--				Indices i j
+		--Output:	Calculated value of kinetic interactions (Gaussian Integrals)
+		calculatekinetic :: Mol -> Int -> Int -> Double
+		calculatekinetic mol i j = sum kineticlist
+			where	
+				--Getting atomindex and contracted orbital index a,k and b,l, respectively
+				(a,k) = indextomultiindex mol i
+				(b,l) = indextomultiindex mol j
+				--Getting coefficients
+				cs_i = (getcoeffs $ getorbitals mol a) !! k
+				cs_j = (getcoeffs $ getorbitals mol b) !! l
+				--Getting coefficients
+				es_i = (getexps $ getorbitals mol a) !! k
+				es_j = (getexps $ getorbitals mol b) !! l
+				--Getting positions of corresponding atoms
+				posi = getposofatom mol a
+				posj = getposofatom mol b
+				--Zip coeffs and exps into List of Tuples: (Could possibly be improved)
+				zippedList_i = zippedVector cs_i es_i
+				zippedList_j = zippedVector cs_j es_j
+				--actually calculate the overlaps
+				--Output: 	List of kinetic integrals, whereby each coeffs and exps of index i are
+				--				combined in every possible way with coeffs and exps of index j
+				--				Length of List should be orderofcontraction_i x orderofcontractin_j 
+				kineticlist = [(fst i)*(fst j)* ( kinetic (snd i) (snd j) posi posj) | i <- zippedList_i , j <- zippedList_j]
+
+
+
+--Calculates the nuclear-Matrix that contains the nuclear attractions of the orbitals
+--Input: Molecule
+--Output: 	nuclear_Matrix, property: symmetric
+--				<alpha, A|-Z/R_C^2|beta,B>
+--Reference: Eq. 4.101 p. 74 Thijssen
+nuc_mat_sng :: Mol -> Double -> Vector Double -> Matrix Double
+nuc_mat_sng mol z r = buildMatrix (nbasisfunctions mol) (nbasisfunctions mol) (\(i,j) -> calculatenuclear mol i j z r)
+	where
+
+		-- Actual function that calculates the nuclear attractions of the orbitals
+		--Input: 	Molecule
+		--				Indices i j
+		--Output:	Calculated value of nuclear attractions (Gaussian Integrals)
+		calculatenuclear :: Mol -> Int -> Int -> Double -> Vector Double -> Double
+		calculatenuclear mol i j z r = sum nuclearlist
+			where	
+				--Getting atomindex and contracted orbital index a,k and b,l, respectively
+				(a,k) = indextomultiindex mol i
+				(b,l) = indextomultiindex mol j
+				--Getting coefficients
+				cs_i = (getcoeffs $ getorbitals mol a) !! k
+				cs_j = (getcoeffs $ getorbitals mol b) !! l
+				--Getting coefficients
+				es_i = (getexps $ getorbitals mol a) !! k
+				es_j = (getexps $ getorbitals mol b) !! l
+				--Getting positions of corresponding atoms
+				posi = getposofatom mol a
+				posj = getposofatom mol b
+				--Zip coeffs and exps into List of Tuples: (Could possibly be improved)
+				zippedList_i = zippedVector cs_i es_i
+				zippedList_j = zippedVector cs_j es_j
+				--actually calculate the overlaps
+				--Output: 	List of nuclear integrals, whereby each coeffs and exps of index i are
+				--				combined in every possible way with coeffs and exps of index j
+				--				Length of List should be orderofcontraction_i x orderofcontractin_j 
+				nuclearlist = [(fst i)*(fst j)* ( nuclear (snd i) (snd j) posi posj r z) | i <- zippedList_i , j <- zippedList_j]
+
+
+
+--Calculates the sum over all nuclear-Matrices for every atomic number and position
+--Input: Molecule
+--Output: 	total nuclear_Matrix, property: symmetric
+--				Sum_{n} <alpha, A|-Z_n/R_n^2|beta,B>
+--Reference: Eq. 4.101 p. 74 Thijssen
+nuc_mat :: Mol -> Matrix Double
+nuc_mat mol = addmat mol
+	where
+		--Number of Atoms in mol
+		n = length $ config mol
+		--Dictionary to get the atomic numbers from
+		dict = [("CARBON", 6.0), ("NITROGEN", 7.0), ("OXYGEN", 8.0), ("HYDROGEN", 1.0)] 	
+		--get i-th Atomstring
+		atomstring i = atomname $ fst ((config mol) !! i)
+		--look it up in dictionary
+		atomicnumber string = fromJust ( lookup string dict)
+		pos i = geometry mol !! i 
+		--sum over all atoms
+		addmat mol = sum [nuc_mat_sng mol (atomicnumber $ atomstring i) (pos i) | i <- [0..n-1]]
+
+
+--Construct h-Matrix
+--Input:	Molecule
+--Output: h-Matrix
+h_mat :: Mol -> Matrix Double
+-- (-)sign is already included in calculation of nuc_mat
+h_mat mol =  0.5*kin_mat mol + nuc_mat mol
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
