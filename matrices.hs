@@ -5,8 +5,6 @@ import Gauss
 import Numeric.Container
 import Data.Maybe
 
-dict2 = [("CARBON", 6.0), ("NITROGEN", 7.0), ("OXYGEN", 8.0), ("HYDROGEN", 1.0)]
-
 
 
 
@@ -156,7 +154,7 @@ nuc_mat mol = addmat mol
 		--get i-th Atomstring
 		atomstring i = atomname $ fst ((config mol) !! i)
 		--look it up in dictionary
-		atomicnumber string = fromJust ( lookup string dict2)
+		atomicnumber string = fromJust ( lookup string (zipWith (,) atomstrings numbers))
 		pos i = geometry mol !! i 
 		--sum over all atoms
 		addmat mol = sum [nuc_mat_sng mol (atomicnumber $ atomstring i) (pos i) | i <- [0..n-1]]
