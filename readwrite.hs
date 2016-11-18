@@ -10,12 +10,6 @@ import Numeric.Container
 import Text.Printf
 import Data.Maybe
 
-----------------
---Dictionaries--
-----------------
-
-dict1 = [("CARBON", "C"), ("NITROGEN", "N"), ("OXYGEN", "O"), ("HYDROGEN", "H")]
-
 
 --helper function
 --compares two elements
@@ -87,7 +81,7 @@ generateFile:: [Char] -> [Char] -> [Char]
      -> IO (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
 generateFile basis atmname filename = do
 	createProcess (shell string) {cwd = Just "EMSL_Basis_Set_Exchange_Local/", std_out = CreatePipe}
-	where string = "python2.7 EMSL_api.py get_basis_data --basis " ++ basis ++" --atom " ++ atmname ++ " --treat_l > data/" ++ filename
+	where string = "python2.7 EMSL_api.py get_basis_data --basis '" ++ basis ++"' --atom " ++ atmname ++ " --treat_l > data/" ++ filename
 	      
 
 
@@ -137,7 +131,7 @@ molprint mol = "    " ++ show (natoms mol) ++ "\n\n" ++ printAtoms mol k
 
 		k = length $ config mol
 		printAtoms mol 0 = []
-	 	printAtoms mol n = " " ++ fromJust ( lookup (atomname ( fst ( (config mol) !! (n-1)))) dict1)  ++ printList (toList ( (geometry mol) !! (k-n))) ++ "\n" ++ printAtoms mol (n-1)
+	 	printAtoms mol n = " " ++ fromJust ( lookup (atomname ( fst ( (config mol) !! (n-1)))) (zipWith (,) atomstrings atomsymbs))  ++ printList (toList ( (geometry mol) !! (k-n))) ++ "\n" ++ printAtoms mol (n-1)
 
 showgeom mol = putStrLn $ molprint mol
 
