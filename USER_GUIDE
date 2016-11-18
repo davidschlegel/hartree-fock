@@ -79,6 +79,12 @@ Show/Save geometric structure of the molecule:
 	Show only geometric information:
 		showgeom :: Mol -> IO ()
 		showgeom <molname> => IO ()
+
+
+Datatype conversion:
+Convert a Mol-type to a list of Contractins ([Ctr]-type)
+mol_to_gaussians :: Mol -> [Ctr]
+
 	
 
 
