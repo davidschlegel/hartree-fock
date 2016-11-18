@@ -5,11 +5,25 @@ import Numeric.Container hiding (linspace)
 import Numeric.LinearAlgebra.Data hiding (linspace)
 import Data.Maybe
 
+-- |Calculates the Doublefactorial f(x) = x!!
+factorial2 :: (Eq a, Num a) => a -> a
+factorial2 0 = 1
+factorial2 1 = 1
+factorial2 n = n * factorial2 (n-2)
 
 
-
---n :: Ctr => Double
---n contr = #Calculate Normalization here
+-- |Calculates normalization factor of contracted Gaussian with arbitrary angular momentum
+normfactor :: Ctr -> Double
+normfactor contr = (prefactor * summation)**(-1.0/2.0)
+	where
+		(l, m, n) = lmncontract contr
+		--(l,m,n) = (fromIntegral l_, fromIntegral m_, fromIntegral n_) --This looks quite dirty
+		n_sum = lengthcontract contr -1
+		a = toList $ coefflist contr
+		alp = [alpha prim | prim <- (gaussians contr)]
+		mom = fromIntegral $ momentumctr contr
+		prefactor = 1.0/(2.0**mom)*pi**(3.0/2.0)* factorial2 (2*l-1) * factorial2 (2*m-1)* factorial2 (2*n-1)
+		summation = sum $ concat $ [[(a !! i)*(a !! j)/((alp !! i +alp !! j)**(mom + 3.0/2.0)) | i <-[0..n_sum]]| j <- [0..n_sum]]
 
 
 
@@ -81,6 +95,9 @@ twoelectron a b g d rA rB rC rD = pref * exp(exponent) * (f_0 arg)
 --overlap p q  = t
 --where
 --	t = buildMatrix (n*n) (n*n) (\(i,j) -> overlaps alpha beta rA rB )
+
+
+
 
 
 
