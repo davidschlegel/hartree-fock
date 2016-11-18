@@ -1,9 +1,19 @@
 module Gauss where
 
-
+import Data
 import Numeric.Container hiding (linspace)
 import Numeric.LinearAlgebra.Data hiding (linspace)
+import Data.Maybe
 
+
+
+
+--n :: Ctr => Double
+--n contr = #Calculate Normalization here
+
+
+
+	 
 
 -- Here all importand integrals involving gaussian functions will be evaluated.
 
@@ -71,7 +81,6 @@ twoelectron a b g d rA rB rC rD = pref * exp(exponent) * (f_0 arg)
 --overlap p q  = t
 --where
 --	t = buildMatrix (n*n) (n*n) (\(i,j) -> overlaps alpha beta rA rB )
-
 
 
 
