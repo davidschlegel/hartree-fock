@@ -11,6 +11,12 @@ factorial2 0 = 1
 factorial2 1 = 1
 factorial2 n = n * factorial2 (n-2)
 
+-- |Calculates the binomialcoefficient n over k
+--binom :: Integer -> Integer -> Double
+binom n 0 = 1
+binom 0 k = 0
+binom n k = binom (n-1) (k-1) * n `div` k 
+
 
 -- |Calculates normalization factor of contracted Gaussian with arbitrary angular momentum
 normfactor :: Ctr -> Double
@@ -25,6 +31,9 @@ normfactor contr = (prefactor * summation)**(-1.0/2.0)
 		prefactor = 1.0/(2.0**mom)*pi**(3.0/2.0)* factorial2 (2*l-1) * factorial2 (2*m-1)* factorial2 (2*n-1)
 		summation = sum $ concat $ [[(a !! i)*(a !! j)/((alp !! i +alp !! j)**(mom + 3.0/2.0)) | i <-[0..n_sum]]| j <- [0..n_sum]]
 
+-- |Calculates f_k (l1 l2 pa_x pb_x) used in Gaussian Product Theorem
+f :: Int -> Int -> Int -> Double -> Double -> Double
+f k l1_ l2_ pa_x pb_x = sum $ concat $ [[pa_x**(fromIntegral (l1_-i))  *  pb_x**(fromIntegral(l2_-j)) * fromIntegral ((binom l1_ i) * (binom l2_ j))| i <- [0..l1_], i+j <= k]| j <-[0..l2_]]
 
 
 	 
