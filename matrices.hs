@@ -1,37 +1,13 @@
 module Matrices where
 
+import Data
 import Gauss
-import Mol
-import Read_basis
 import Numeric.Container
 import Data.Maybe
 
-
---Get orbitals from i-indexed Atom for a given molecule
--- Input: 	molecule
---				index of atom
---Output: List of contracted Orbitals
-getorbitals :: Mol -> Int -> [Orbital]
-getorbitals mol i = orbitals $ (fst ((config mol) !! i))
+dict2 = [("CARBON", 6.0), ("NITROGEN", 7.0), ("OXYGEN", 8.0), ("HYDROGEN", 1.0)]
 
 
---Get list of coefficients out of a given set (list of Orbitals)
---Input:		List of Orbitals
---Output:	List of Coefficient Vectors 
-getcoeffs :: [Orbital] -> [Vector Double]
-getcoeffs set = [coeffs i | i <- set]
-
-
---Get list of exponents out of a given set (list of Orbitals)
---Input:		List of Orbitals
---Output:	List of Exponent Vectors 
-getexps :: [Orbital] -> [Vector Double]
-getexps set = [exponents i | i <- set]
-
-
---Get position vector for i-th Atom
-getposofatom :: Mol -> Int -> Vector Double
-getposofatom mol i = geometry mol !! i
 
 
 --element wise zipped list (first coeff, second exp)
@@ -48,11 +24,6 @@ indextomultiindex mol i = rekursion i 0
 			| length (getorbitals mol n) > i 	= (n,i)
  			| otherwise 															= rekursion (i-length (getorbitals mol n)) (n+1)
 
-
-
--- Gives amount of contracted gaussian orbitals for a given molecule
-nbasisfunctions :: Mol -> Int
-nbasisfunctions mol = sum [length ( orbitals ( fst ( (config mol) !!(i)))) | i <- [0.. (length (config mol)) -1]]
 
 
 
@@ -182,12 +153,10 @@ nuc_mat mol = addmat mol
 	where
 		--Number of Atoms in mol
 		n = length $ config mol
-		--Dictionary to get the atomic numbers from
-		dict = [("CARBON", 6.0), ("NITROGEN", 7.0), ("OXYGEN", 8.0), ("HYDROGEN", 1.0)] 	
 		--get i-th Atomstring
 		atomstring i = atomname $ fst ((config mol) !! i)
 		--look it up in dictionary
-		atomicnumber string = fromJust ( lookup string dict)
+		atomicnumber string = fromJust ( lookup string dict2)
 		pos i = geometry mol !! i 
 		--sum over all atoms
 		addmat mol = sum [nuc_mat_sng mol (atomicnumber $ atomstring i) (pos i) | i <- [0..n-1]]
