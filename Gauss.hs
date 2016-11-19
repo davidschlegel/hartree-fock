@@ -1,3 +1,18 @@
+
+----------------------------------------------------------------
+--                                                    2016.11.19
+-- |
+-- Module      :  Gauss
+-- Copyright   :  Copyright (c) David Schlegel
+-- License     :  BSD
+-- Maintainer  :  David Schlegel
+-- Stability   :  experimental
+-- Portability :  Haskell
+--
+-- Gaussian Integral evaluation plays an important role in quantum
+-- chemistry. Here functions will be provided to compute the most
+-- important integrals involving gaussian-type orbitals (GTOs).
+----------------------------------------------------------------
 module Gauss where
 
 import Data
@@ -18,6 +33,10 @@ import Data.Maybe
 ---------------------
 ---------------------
 
+-- |Calculates the factorial f(x) = x!
+factorial n
+    | n < 0     = 0
+    | otherwise = product [1..n]
 
 -- |Calculates the Doublefactorial f(x) = x!!
 factorial2 :: (Eq a, Num a) => a -> a
@@ -48,10 +67,9 @@ center a rA b rB = ((scalar b * rB) * (scalar a * rA))/scalar (a+b)
 erf :: Double -> Double
 erf x = 2/sqrt pi * sum [x/(2*n+1) * product [-x^2/k |  k <- [1..n] ] | n <- [0..100]]
 
--- |error function calculation
+--error function calculation
 f_0 :: Double -> Double
-f_0 x = sqrt pi/2 * 1/sqrt x * (sqrt x) -- erf function missing
-
+f_0 = erf 
 
 
 
@@ -64,8 +82,8 @@ f_0 x = sqrt pi/2 * 1/sqrt x * (sqrt x) -- erf function missing
 
 
 -- |Calculates normalization factor of contracted Gaussian with arbitrary angular momentum
-normfactor :: Ctr -> Double
-normfactor contr = (prefactor * summation)**(-1.0/2.0)
+normCtr :: Ctr -> Double
+normCtr contr = (prefactor * summation)**(-1.0/2.0)
 	--See also Eq. 2.11
 	where
 		(l, m, n) = lmncontract contr
@@ -77,6 +95,14 @@ normfactor contr = (prefactor * summation)**(-1.0/2.0)
 		prefactor = 1.0/(2.0**mom)*pi**(3.0/2.0)* factorial2 (2*l-1) * factorial2 (2*m-1)* factorial2 (2*n-1)
 		summation = sum $ concat $ [[(a !! i)*(a !! j)/((alp !! i +alp !! j)**(mom + 3.0/2.0)) | i <-[0..n_sum]]| j <- [0..n_sum]]
 
+
+-- |Calculates normalization factor of primitive Gaussian with arbitrary angular momentum
+normPG :: PG -> Double
+normPG (PG lmn alpha pos) = (2*alpha/pi)**(3/4) * (a/b)**(1/2)
+	where
+		(l, m, n) = (fromIntegral $ lmn !! 0, fromIntegral $ lmn !! 1, fromIntegral $ lmn !! 2)
+		a = (8*alpha)**(l+m+n) * factorial l * factorial m * factorial n
+		b = factorial (2*l) * factorial (2*m) * factorial (2*n)
 
 
 -- |Calculates f_k (l1 l2 pa_x pb_x) used in Gaussian Product Theorem
@@ -93,8 +119,8 @@ zipContractionWith zipfunction (Ctr pglist1 coeffs1) (Ctr pglist2 coeffs2) = pr1
 		coefflist2 = toList coeffs2
 		n1 = length coefflist1 -1
 		n2 = length coefflist2 -1
-		pr1 = normfactor (Ctr pglist1 coeffs1) --I am not so sure about this
-		pr2 = normfactor (Ctr pglist2 coeffs2) --I am not so sure about this
+		pr1 = normCtr (Ctr pglist1 coeffs1) --I am not so sure about this
+		pr2 = normCtr (Ctr pglist2 coeffs2) --I am not so sure about this
 		value = sum $ [(coefflist1 !! i)* (coefflist2 !! j)* (zipfunction (pglist1 !! i) (pglist2 !! j)) | i <- [0..n1], j <- [0..n2]]
 
 
@@ -105,7 +131,7 @@ constr_matrix contractionlist function = buildMatrix (length contractionlist) (l
 
 
 
--- |Calculates overlap of two primitive gaussians
+-- |Calculates overlap integral of two primitive gaussians
 s_12 :: PG -> PG -> Double
 s_12 (PG lmn1 alpha1 pos1) (PG lmn2 alpha2 pos2) = prefactor * (i 0) * (i 1) * (i 2) --pref * I_x * I_y * I_z
 	where
@@ -120,7 +146,9 @@ s_12 (PG lmn1 alpha1 pos1) (PG lmn2 alpha2 pos2) = prefactor * (i 0) * (i 1) * (
 		-- See also Eq. 3.15
 		i k = sum $ [f (round (2*i)) l1 l2 (pa !! k) (pb !! k) * factorial2 (2.0* i -1.0) * ((2*g)** (- i)) * (pi/g)**(1/2) | i <- range ]
 
--- |Calculates kinetic energy of two primitive gaussians
+
+
+-- |Calculates kinetic energy integral of two primitive gaussians
 t_12 :: PG -> PG -> Double
 t_12 (PG lmn1 alpha1 pos1) (PG lmn2 alpha2 pos2) =  (i 0) + (i 1) + (i 2) -- I_x + I_y + I_z
 	where
@@ -137,6 +165,14 @@ t_12 (PG lmn1 alpha1 pos1) (PG lmn2 alpha2 pos2) =  (i 0) + (i 1) + (i 2) -- I_x
 			+ 2 * alpha1 * alpha2 * (p1p1 k)
 			- alpha1 * (fromIntegral (lmn2 !! k)) * (p1m1 k)  
 			- alpha2 * (fromIntegral (lmn1 !! k)) * (m1p1 k)
+
+
+-- |Calculates nuclear attraction integral of two primitive gaussians
+--v_12 :: Double -> Vecotr Double -> PG -> PG -> Double
+--v_12 z c (PG lmn1 alpha1 pos1) (PG lmn2 alpha2 pos2) = z*pi*pre/g
+--	where
+--		pref = exp (-alpha1*alpha2 * (distance pos1 pos2) /g)
+--		g = alpha1 + alpha2
 
 
 
