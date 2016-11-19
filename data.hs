@@ -145,7 +145,7 @@ lengthcontract :: Ctr -> Int
 lengthcontract ctr = length $ gaussians ctr
 
 -- |Gives l m n out of a contraction
---lmncontract :: Ctr -> (Int, Int, Int)
+lmncontract :: (Num t, Num t1, Num t2) => Ctr -> (t, t1, t2)
 lmncontract ctr = (fromIntegral $ a !! 0, fromIntegral $ a !! 1, fromIntegral $ a !! 2)
 	where a = lmn (gaussians ctr !! 0)
 
