@@ -31,33 +31,33 @@ atomstrings = ["HYDROGEN","HELIUM","LITHIUM","BERYLLIUM","BORON","CARBON","NITRO
 ------------------------
 
 -- |Defines all necessary information about a certain orbital
-data Orbital = Orbital { description :: (String, Int) 	-- |orbital-type (angular momentum) and contraction length
-			, numbering :: Vector Double 	-- |numbering of gaussians
-		 	, exponents :: Vector Double 	-- |exponents of gaussians
-			, coeffs :: Vector Double    	-- |coefficients of gaussians
+data Orbital = Orbital { description :: (String, Int) 	{-- |orbital-type (angular momentum) and contraction length --}
+			, numbering :: Vector Double 	{-- |numbering of gaussians --}
+		 	, exponents :: Vector Double 	{-- |exponents of gaussians --}
+			, coeffs :: Vector Double    	{-- |coefficients of gaussians --}
 			} deriving (Eq, Show)
 
 -- |Defines a collection of several (contracted) Orbitals
-data Atom = Atom {atomname :: String	-- |name of the Atom e.g. "CARBON"
-		, orbitals :: [Orbital] -- |list of the orbitals corresponding to an atom
+data Atom = Atom {atomname :: String	{-- |name of the Atom e.g. "CARBON" --}
+		, orbitals :: [Orbital] {-- |list of the orbitals corresponding to an atom --} 
 		 } deriving (Eq, Show)
 
 
 -- |Defines all necessary information about a certain orbital
-data Mol = Mol {  molname :: String		-- |molecule name , eg "H20" etc.
-		, config :: [(Atom , Vector Double)] -- |configuration
+data Mol = Mol {  molname :: String		{-- |molecule name , eg "H20" etc. --}
+		, config :: [(Atom , Vector Double)] {-- |configuration --}
 		} deriving (Eq, Show)
 
 
 -- |Defines a primitive Gaussian or short: Primitive
-data PG = PG { lmn :: [Int]	-- |[l,m,n] angular momentum information
-										, alpha :: Double -- |exponent 
-										, position :: Vector Double -- |position vector
+data PG = PG { lmn :: [Int]	{-- |[l,m,n] angular momentum information --}
+										, alpha :: Double {-- |exponent --}
+										, position :: Vector Double {-- |position vector --}
 		} deriving (Eq, Show)
 
 -- |data type Contraction
-data Ctr = Ctr{ gaussians :: [PG]	-- |list of primitives
-											, coefflist :: Vector Double -- |coefficient vector
+data Ctr = Ctr{ gaussians :: [PG]	{-- |list of primitives --}
+											, coefflist :: Vector Double {-- |coefficient vector --}
 											} deriving (Eq, Show)
 
 ------------------------------
