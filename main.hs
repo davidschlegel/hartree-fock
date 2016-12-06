@@ -20,7 +20,7 @@ import Text.Printf
 import Data
 import ReadWrite
 import Gauss
-import Matrices
+--import Matrices
 import Numeric.Container hiding (linspace)
 
 

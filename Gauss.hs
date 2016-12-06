@@ -1,19 +1,42 @@
 
-----------------------------------------------------------------
---                                                    2016.11.19
--- |
--- Module      :  Gauss
--- Copyright   :  Copyright (c) David Schlegel
--- License     :  BSD
--- Maintainer  :  David Schlegel
--- Stability   :  experimental
--- Portability :  Haskell
---
--- Gaussian Integral evaluation plays an important role in quantum
--- chemistry. Here functions will be provided to compute the most
--- important integrals involving gaussian-type orbitals (GTOs).
-----------------------------------------------------------------
-module Gauss where
+{-|
+
+ Module      :  Gauss
+ Copyright   :  Copyright (c) David Schlegel
+ License     :  BSD
+ Maintainer  :  David Schlegel
+ Stability   :  experimental
+ Portability :  Haskell
+
+Gaussian Integral evaluation plays an important role in quantum chemistry. Here functions will be provided to compute the most important integrals involving gaussian-type orbitals (GTOs).
+
+An unnormalized primitive cartesian Gaussian Orbital has the form
+
+<<centered_gaussian.svg centered_gaussian>> 
+
+where /A/ denotes the center of the orbital.
+
+An unnormalized contracted Gaussian Orbital is a linear combination of primitive Gaussian:
+
+<<centered_contracted_gaussian.svg centered_contracted_gaussian>>
+
+"Gauss" uses the datatype contstructors 'PG' (Primitive Gaussian) and 'Ctr' (Contraction), defined in "Data".
+-}
+
+
+
+module Gauss (
+-- * Basic functions
+distance, frac, center,
+-- * Normalization
+normCtr, normPG,
+-- * Integral Evaluation
+s_12, t_12,
+-- * Contraction operations
+zipContractionWith, constr_matrix
+
+
+) where
 
 import Data
 import Numeric.Container hiding (linspace)
@@ -50,20 +73,27 @@ binom n 0 = 1
 binom 0 k = 0
 binom n k = binom (n-1) (k-1) * n `div` k 
 
--- |Computes the distance between to vectors: |r_A - r-B|^2
+-- |Computes the distance between to vectors:
+--
+-- <<norm.svg norm>>
 distance :: Vector Double -> Vector Double -> Double
 distance rA rB = norm2(rA - rB)
 
--- |Calculates
+-- | Calculates effective coefficient:
+--
+-- >>> frac alpha beta = alpha*beta/(alpha + beta)
 frac ::  Double -> Double -> Double
 frac alpha beta = alpha*beta/(alpha + beta)
 
---calculates weighted radius of two gaussians
---input: alpha, beta rA, rB
-center :: Double -> Vector Double -> Double -> Vector Double -> Vector Double
+-- | Calculates weighted radius of two gaussians
+center :: Double -- ^ alpha
+			-> Vector Double -- ^ rA
+			-> Double -- ^ beta
+			-> Vector Double -- ^ rB
+			-> Vector Double
 center a rA b rB = ((scalar b * rB) * (scalar a * rA))/scalar (a+b)
 
--- |errof function calculation
+-- |error function calculation
 erf :: Double -> Double
 erf x = 2/sqrt pi * sum [x/(2*n+1) * product [-x^2/k |  k <- [1..n] ] | n <- [0..100]]
 
@@ -111,8 +141,11 @@ f k l1_ l2_ pa_x pb_x = sum $ concat $ [[pa_x**(fromIntegral (l1_-i))  *  pb_x**
 --See also Eq. 2.45
 
 
--- |Evaluates a given function for two contractions
-zipContractionWith :: (PG -> PG -> Double) -> Ctr -> Ctr -> Double
+-- |Evaluates a given function for two contractions. The operation is symmetric in contraction arguments.
+zipContractionWith :: (PG -> PG -> Double) -- ^ Function of two primitive Gaussians 
+							-> Ctr -- ^ Contraction
+							-> Ctr -- ^ Contraction 
+							-> Double
 zipContractionWith zipfunction (Ctr pglist1 coeffs1) (Ctr pglist2 coeffs2) = pr1 * pr2 * value
 	where
 		coefflist1 = toList coeffs1
@@ -126,12 +159,16 @@ zipContractionWith zipfunction (Ctr pglist1 coeffs1) (Ctr pglist2 coeffs2) = pr1
 
 
 -- |Construct a matrix out of a list of Contractions and a function for two primitive gaussians
-constr_matrix :: [Ctr] -> (PG -> PG -> Double) -> Matrix Double
+constr_matrix :: [Ctr] -- ^ List of Contraction
+						-> (PG -> PG -> Double) -- ^ Function of two primitive Gaussians
+						-> Matrix Double -- ^ Matrix of dimensions (length [Ctr]) x (length [Ctr])
 constr_matrix contractionlist function = buildMatrix (length contractionlist) (length contractionlist) (\(i,j) -> zipContractionWith function (contractionlist !! i) (contractionlist !! j) )
 
 
 
 -- |Calculates overlap integral of two primitive gaussians
+
+-- | <<s_12.svg s_12>>
 s_12 :: PG -> PG -> Double
 s_12 (PG lmn1 alpha1 pos1) (PG lmn2 alpha2 pos2) = prefactor * (i 0) * (i 1) * (i 2) --pref * I_x * I_y * I_z
 	where
@@ -149,6 +186,8 @@ s_12 (PG lmn1 alpha1 pos1) (PG lmn2 alpha2 pos2) = prefactor * (i 0) * (i 1) * (
 
 
 -- |Calculates kinetic energy integral of two primitive gaussians
+
+-- | <<t_12.svg t_12>>
 t_12 :: PG -> PG -> Double
 t_12 (PG lmn1 alpha1 pos1) (PG lmn2 alpha2 pos2) =  (i 0) + (i 1) + (i 2) -- I_x + I_y + I_z
 	where
@@ -176,6 +215,21 @@ t_12 (PG lmn1 alpha1 pos1) (PG lmn2 alpha2 pos2) =  (i 0) + (i 1) + (i 2) -- I_x
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------
+--Deprecated-----
+-----------------
 
 	 
 

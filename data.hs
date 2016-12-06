@@ -1,6 +1,6 @@
 {-|
 
- Module      :  Gauss
+ Module      :  Data
  Copyright   :  Copyright (c) David Schlegel
  License     :  BSD
  Maintainer  :  David Schlegel
@@ -30,7 +30,7 @@ Orbital(..), Atom(..), Mol(..), PG(..), Ctr(..),
 -- ** Orbital functions
 getcoeffs, getexps,
 -- ** Mol functions
-geometry, natoms, getorbitals, getposofatom, nbasisfunctions,
+geometry, natoms, getorbitals, getposofatom, nbasisfunctions, mergeMols,
 -- ** PG functions
 momentumpg, 
 -- ** Ctr functions
@@ -61,9 +61,11 @@ atomstrings = ["HYDROGEN","HELIUM","LITHIUM","BERYLLIUM","BORON","CARBON","NITRO
 
 
 
--- |Defines all information about a certain Gaussian Orbital
+-- |Defines all information about a certain (contracted) Gaussian Orbital
+
+-- |Equivalent to 'Ctr', but canonical datastructure for importing data using the <https://bse.pnl.gov/bse EMSL> database.
 data Orbital = Orbital { 
-			-- | orbital-type (angular momentum) and contraction length  
+			-- | orbital-type (angular momentum) and contraction length  (see also 'momentumdict') 
 			description :: (String, Int)
 			-- | numbering of gaussians
 			, numbering :: Vector Double
@@ -80,7 +82,7 @@ data Atom = Atom {atomname :: String	-- ^ name of the Atom e.g. \"CARBON\"
 
 
 -- |Defines all necessary information about a Strucure containing multiple Atoms
-data Mol = Mol {  molname :: String		-- ^ molecule name , eg \"H20\" etc.  
+data Mol = Mol {  molname :: String		-- ^ Mol name , eg \"H20\" etc.  
 		, config :: [(Atom , Vector Double)] -- ^ configuration  
 		} deriving (Eq, Show)
 
@@ -90,6 +92,12 @@ data Mol = Mol {  molname :: String		-- ^ molecule name , eg \"H20\" etc.
 -- | <<primitive_gaussian.svg primitive_gaussian>>
 
 -- | where l+m+n=L defines the angular momentum.
+
+-- | We will also write this as
+
+-- | <<G.svg G>>
+
+-- | where A denotes the center of the Orbital
 data PG = PG { lmn :: [Int]	-- ^ \[l,m,n\] angular momentum information  
 										, alpha :: Double -- ^ exponent  
 										, position :: Vector Double -- ^ position vector  
@@ -98,6 +106,10 @@ data PG = PG { lmn :: [Int]	-- ^ \[l,m,n\] angular momentum information
 -- |Defines a Contraction of Gaussians, which has the form
 
 -- | <<contraction.svg contraction>>
+
+-- | or equivalently
+
+-- | <<G_contr.svg G_contr>>
 data Ctr = Ctr{ gaussians :: [PG]	-- ^ list of primitives  
 											, coefflist :: Vector Double -- ^ coefficient vector  
 											} deriving (Eq, Show)
@@ -201,4 +213,36 @@ mol_to_gaussians mol = concat $ toCtr mol
 
 
 		toCtr mol = concat ( [[[toprimitives mol i j lmn| lmn <- llist $ getLnumber mol i j] | j <-[0..(norbs mol i -1)]] | i <- [0..(natms mol -1)]  ] )
+
+
+
+-- | Merge a list of Mols to a single superstructure Mol.
+
+-- | This is useful for instance when duplicating the same structure (e.g. multiple H20 molecules)
+mergeMols :: [Mol] -- ^ List of Mol datatypes
+			-> String -- ^ New strucure name
+			-> Mol -- ^ final superstructure Mol
+mergeMols mollist molname = Mol molname configuration
+	where 
+		configuration = concat $ [config i | i <- mollist]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
