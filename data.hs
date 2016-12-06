@@ -1,101 +1,122 @@
-module Data where
+{-|
 
------------------------------------------------------------
----- ALL data type declarations used in this software -----
----Important helper functions for the used data types------
----Important Conversion functions between data types-------
------------------------------------------------------------
+ Module      :  Gauss
+ Copyright   :  Copyright (c) David Schlegel
+ License     :  BSD
+ Maintainer  :  David Schlegel
+ Stability   :  experimental
+ Portability :  Haskell
+
+ Module "Data" provides all important datastructures and corresponding functions as well as dictionary lists.
+-}
+
+
+module Data (
+-- * Definitions
+-- | To provide a handy overview about angular momentum, element names and corresponding cardinal numbers, we give these list definitions which are beeing used with lookup tables.
+momentumdict, numbers, atomsymbs, atomstrings,
+-- * Constructors
+-- |
+--		* 'Orbital', defining a certain orbital; dependencies: None
+--		* 'Atom', defining a collection of several (contracted) Orbitals; dependencies: 'Orbital'
+--		* 'Mol', defining a Strucure containing multiple Atoms; dependencies: 'Atom', 'Orbital'
+--		* 'PG', defining a primitive Gaussian function; dependencies: None
+--		* 'Ctr', defining a set of contractions of primitive Gaussians; dependencies: 'PG'
+
+Orbital(..), Atom(..), Mol(..), PG(..), Ctr(..),
+-- | 
+
+-- * Functions
+-- ** Orbital functions
+getcoeffs, getexps,
+-- ** Mol functions
+geometry, natoms, getorbitals, getposofatom, nbasisfunctions,
+-- ** PG functions
+momentumpg, 
+-- ** Ctr functions
+momentumctr, lengthcontract, lmncontract,
+-- ** Conversion functions
+mol_to_gaussians	
+			) where
 
 import Numeric.Container hiding (linspace)
 import Data.Maybe
 
 
-
-
-
--- |Dictionary for angular momentum
+-- | Dictionary for angular momentum: [( \"S \", 0), ( \"P \", 1), ( \"D \", 2), ( \"F \", 3)]
 momentumdict = [("S", 0), ("P", 1), ("D", 2), ("F", 3)]
--- |Ordered list of cardinal numbers
-numbers = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118] :: [Double]
--- |Ordered list of element symbols
+
+-- | Ordered list of cardinal numbers: [1..118]
+numbers = [1..118] :: [Double]
+
+-- | Ordered list of element symbols: [\"H \", \"He \", \"Li \", \"Be \", \"B \", \"C \", \"N \", \"O \", \"F \", ... ]
 atomsymbs = ["H","He","Li","Be","B","C","N","O","F","Ne","Na","Mg","Al","Si","P","S","Cl","Ar","K","Ca","Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr","Rb","Sr","Y","Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I","Xe","Cs","Ba","La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn","Fr","Ra","Ac","Th","Pa","U","Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No","Lr","Rf","Db","Sg","Bh","Hs","Mt","Ds","Rg","Cn","Uut","Fl","Uup","Lv","Uus","Uuo"]
--- |Ordered list of element names
+
+-- | Ordered list of element names: [ \"HYDROGEN \", \"HELIUM \", \"LITHIUM \", \"BERYLLIUM \", \"BORON \", \"CARBON \", \"NITROGEN \", \"OXYGEN \", \"FLUORINE \", ... ]
 atomstrings = ["HYDROGEN","HELIUM","LITHIUM","BERYLLIUM","BORON","CARBON","NITROGEN","OXYGEN","FLUORINE","NEON","SODIUM","MAGNESIUM","ALUMINUM","SILICON","PHOSPHORUS","SULFUR","CHLORINE","ARGON","POTASSIUM","CALCIUM","SCANDIUM","TITANIUM","VANADIUM","CHROMIUM","MANGANESE","IRON","COBALT","NICKEL","COPPER","ZINC","GALLIUM","GERMANIUM","ARSENIC","SELENIUM","BROMINE","KRYPTON","RUBIDIUM","STRONTIUM","YTTRIUM","ZIRCONIUM","NIOBIUM","MOLYBDENUM","TECHNETIUM","RUTHENIUM","RHODIUM","PALLADIUM","SILVER","CADMIUM","INDIUM","TIN","ANTIMONY","TELLURIUM","IODINE","XENON","CESIUM","BARIUM","LANTHANUM","CERIUM","PRASEODYMIUM","NEODYMIUM","PROMETHIUM","SAMARIUM","EUROPIUM","GADOLINIUM","TERBIUM","DYSPROSIUM","HOLMIUM","ERBIUM","THULIUM","YTTERBIUM","LUTETIUM","HAFNIUM","TANTALUM","TUNGSTEN","RHENIUM","OSMIUM","IRIDIUM","PLATINUM","GOLD","MERCURY","THALLIUM","LEAD","BISMUTH","POLONIUM","ASTATINE","RADON","FRANCIUM","RADIUM","ACTINIUM","THORIUM","PROTACTINIUM","URANIUM","NEPTUNIUM","PLUTONIUM","AMERICIUM","CURIUM","BERKELIUM","CALIFORNIUM","EINSTEINIUM","FERMIUM","MENDELEVIUM","NOBELIUM","LAWRENCIUM","RUTHERFORDIUM","DUBNIUM","SEABORGIUM","BOHRIUM","HASSIUM","MEITNERIUM","DARMSTADTIUM","ROENTGENIUM","COPERNICIUM","UNUNTRIUM","FLEROVIUM","UNUNPENTIUM","LIVERMORIUM","UNUNSEPTIUM","UNUNOCTIUM"]
 
 
 
 
 
-------------------------
------ DATA TYPES -------
-------------------------
 
--- |Defines all necessary information about a certain orbital
-data Orbital = Orbital { description :: (String, Int) 	{-- |orbital-type (angular momentum) and contraction length --}
-			, numbering :: Vector Double 	{-- |numbering of gaussians --}
-		 	, exponents :: Vector Double 	{-- |exponents of gaussians --}
-			, coeffs :: Vector Double    	{-- |coefficients of gaussians --}
+
+-- |Defines all information about a certain Gaussian Orbital
+data Orbital = Orbital { 
+			-- | orbital-type (angular momentum) and contraction length  
+			description :: (String, Int)
+			-- | numbering of gaussians
+			, numbering :: Vector Double
+			-- | exponents of gaussians  
+		 	, exponents :: Vector Double
+			-- | coefficients of gaussians  
+			, coeffs :: Vector Double  
 			} deriving (Eq, Show)
 
 -- |Defines a collection of several (contracted) Orbitals
-data Atom = Atom {atomname :: String	{-- |name of the Atom e.g. "CARBON" --}
-		, orbitals :: [Orbital] {-- |list of the orbitals corresponding to an atom --} 
+data Atom = Atom {atomname :: String	-- ^ name of the Atom e.g. \"CARBON\"  
+		, orbitals :: [Orbital] -- ^ list of the orbitals corresponding to an atom   
 		 } deriving (Eq, Show)
 
 
--- |Defines all necessary information about a certain orbital
-data Mol = Mol {  molname :: String		{-- |molecule name , eg "H20" etc. --}
-		, config :: [(Atom , Vector Double)] {-- |configuration --}
+-- |Defines all necessary information about a Strucure containing multiple Atoms
+data Mol = Mol {  molname :: String		-- ^ molecule name , eg \"H20\" etc.  
+		, config :: [(Atom , Vector Double)] -- ^ configuration  
 		} deriving (Eq, Show)
 
 
--- |Defines a primitive Gaussian or short: Primitive
-data PG = PG { lmn :: [Int]	{-- |[l,m,n] angular momentum information --}
-										, alpha :: Double {-- |exponent --}
-										, position :: Vector Double {-- |position vector --}
+-- |Defines a primitive Gaussian, which has the form 
+
+-- | <<primitive_gaussian.svg primitive_gaussian>>
+
+-- | where l+m+n=L defines the angular momentum.
+data PG = PG { lmn :: [Int]	-- ^ \[l,m,n\] angular momentum information  
+										, alpha :: Double -- ^ exponent  
+										, position :: Vector Double -- ^ position vector  
 		} deriving (Eq, Show)
 
--- |data type Contraction
-data Ctr = Ctr{ gaussians :: [PG]	{-- |list of primitives --}
-											, coefflist :: Vector Double {-- |coefficient vector --}
+-- |Defines a Contraction of Gaussians, which has the form
+
+-- | <<contraction.svg contraction>>
+data Ctr = Ctr{ gaussians :: [PG]	-- ^ list of primitives  
+											, coefflist :: Vector Double -- ^ coefficient vector  
 											} deriving (Eq, Show)
 
-------------------------------
-------------------------------
------ DATA TYPE Functions ----
-------------------------------
-------------------------------
 
 
 
---------------------------
--- Orbital functions -----
---------------------------
-
--- |Get list of coefficients out of a given set (list of Orbitals)
--- Input:		List of Orbitals
--- Output:	List of Coefficient Vectors 
+-- | Gives list of coefficients out of a given Orbital set (list of Orbitals)
 getcoeffs :: [Orbital] -> [Vector Double]
 getcoeffs set = [coeffs i | i <- set]
 
 
 -- |Get list of exponents out of a given set (list of Orbitals)
--- Input:		List of Orbitals
--- Output:	List of Exponent Vectors 
 getexps :: [Orbital] -> [Vector Double]
 getexps set = [exponents i | i <- set]
 
 
---see also below: getorbitals
 
-
-
-
-
---------------------------
----- Mol functions -------
---------------------------
-
+-- | Gives list of the positions for a given Mol. Length of list ist the number of Atoms in the given Mol.
 geometry :: Mol -> [Vector Double]
 geometry mol = geom k
 	where 	k = length $ config mol
@@ -103,33 +124,26 @@ geometry mol = geom k
 			| n == 0 = []
 			| otherwise  = snd ((config mol) !! (k-n)) : geom (n-1)
 
+-- | Gives the number of Atoms in a given Mol
 natoms :: Mol -> Int
 natoms mol = length $ config mol
 
 
--- |Get orbitals from i-indexed Atom for a given molecule
--- Input: 	molecule
---				index of atom
--- Output: List of contracted Orbitals
+-- |Gives list of orbitals from i-indexed Atom for a given Mol
 getorbitals :: Mol -> Int -> [Orbital]
 getorbitals mol i = orbitals $ (fst ((config mol) !! i))
 
 
 
--- |Get position vector for i-th Atom
+-- |Gives position vector for i-th Atom
 getposofatom :: Mol -> Int -> Vector Double
 getposofatom mol i = geometry mol !! i
 
 
--- |Gives amount of contracted gaussian orbitals for a given molecule
+-- |Gives amount of contracted gaussian orbitals for a given Mol
 nbasisfunctions :: Mol -> Int
 nbasisfunctions mol = sum [length ( orbitals ( fst ( (config mol) !!(i)))) | i <- [0.. (length (config mol)) -1]]
 
-
-
---------------------------
-------- PG functions -----
---------------------------
 
 
 -- |Gives angular momentum quantum number
@@ -156,11 +170,6 @@ lmncontract ctr = (fromIntegral $ a !! 0, fromIntegral $ a !! 1, fromIntegral $ 
 
 
 
---------------------------
-------CONVERSION----------
---------------------------
----- Mol -> [Ctr] --------
---------------------------
 
 
 -- |Converts molecule datatype to a list of Ctr Datatype
