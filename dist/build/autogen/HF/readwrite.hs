@@ -1,6 +1,6 @@
 {-|
 
- Module      :  Gauss
+ Module      :  HF.Gauss
  Copyright   :  Copyright (c) David Schlegel
  License     :  BSD
  Maintainer  :  David Schlegel
@@ -12,7 +12,7 @@
 	* Read input (Geometry information, Basis set information) and convert to internal datastructures, provided in "Data"
 	* Write output (Geometry, structure and basis set information)
 -}
-module ReadWrite (
+module HF.ReadWrite (
 -- * Read
 -- ** Basis set data
 
@@ -50,7 +50,7 @@ getgeom, constr_set_from_file, get_mol_from_files,
 molInfoPrint, molGeomPrint
 ) where
 
-import Data
+import HF.Data
 import System.Process
 import System.IO
 import System.IO.Unsafe

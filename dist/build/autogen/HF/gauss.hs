@@ -1,7 +1,7 @@
 
 {-|
 
- Module      :  Gauss
+ Module      :  HF.Gauss
  Copyright   :  Copyright (c) David Schlegel
  License     :  BSD
  Maintainer  :  David Schlegel
@@ -20,12 +20,12 @@ An unnormalized contracted Gaussian Orbital is a linear combination of primitive
 
 <<centered_contracted_gaussian.svg centered_contracted_gaussian>>
 
-"Gauss" uses the datatype contstructors 'PG' (Primitive Gaussian) and 'Ctr' (Contraction), defined in "Data".
+"Gauss" uses the datatype contstructors 'PG' (Primitive Gaussian) and 'Ctr' (Contraction), defined in "HF.Data".
 -}
 
 
 
-module Gauss (
+module HF.Gauss (
 -- * Basic functions
 distance, frac, center,
 -- * Normalization
@@ -38,7 +38,7 @@ zipContractionWith, constr_matrix
 
 ) where
 
-import Data
+import HF.Data
 import Numeric.Container hiding (linspace)
 import Numeric.LinearAlgebra.Data hiding (linspace)
 import Data.Maybe

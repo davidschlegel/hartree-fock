@@ -1,17 +1,17 @@
 {-|
 
- Module      :  Data
+ Module      :  HF.Data
  Copyright   :  Copyright (c) David Schlegel
  License     :  BSD
  Maintainer  :  David Schlegel
  Stability   :  experimental
  Portability :  Haskell
 
- Module "Data" provides all important datastructures and corresponding functions as well as dictionary lists.
+ Module "HF.Data" provides all important datastructures and corresponding functions as well as dictionary lists.
 -}
 
 
-module Data (
+module HF.Data (
 -- * Definitions
 -- | To provide a handy overview about angular momentum, element names and corresponding cardinal numbers, we give these list definitions which are beeing used with lookup tables.
 momentumdict, numbers, atomsymbs, atomstrings,

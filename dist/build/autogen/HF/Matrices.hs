@@ -1,7 +1,7 @@
-module Matrices where
+module HF.Matrices where
 
-import Data
-import Gauss
+import HF.Data
+import Hf.Gauss
 import Numeric.Container
 import Data.Maybe
 
