@@ -97,7 +97,7 @@ getAtomData filename = Atom atomname orbitals
 	      	-- splitGeneral splits the string into array elements seperated by "\n"
 	      splitGeneral = removeItem "" $ split (dropDelims $ oneOf "\n") (unsafePerformIO (readFile filepath))
 	      	--e.g. filepath = "EMSL_Basis_Set_Exchange_Local/data/data2.txt"
-	      filepath = "EMSL_Basis_Set_Exchange_Local/data/" ++ filename
+	      filepath = "../../../EMSL_Basis_Set_Exchange_Local/data/" ++ filename
 	      	--splitRow removes empty spaces
 	      splitRow = [removeItem "" $ split (dropDelims $ oneOf " ") (splitGeneral !! i) | i <- [0..((length splitGeneral)-1)]]
 	      
@@ -150,7 +150,7 @@ generateFile:: [Char] -- ^ basis, eg. \"STO-6G"\"
 				-> [Char] -- ^ output filename
      			-> IO (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle) -- ^ output file is saved to @ EMSL_Basis_Set_Exchange_Local\/data\/ @
 generateFile basis atmname filename = do
-	createProcess (shell string) {cwd = Just "EMSL_Basis_Set_Exchange_Local/", std_out = CreatePipe}
+	createProcess (shell string) {cwd = Just "../../../EMSL_Basis_Set_Exchange_Local/", std_out = CreatePipe}
 	where string = "python2.7 EMSL_api.py get_basis_data --basis '" ++ basis ++"' --atom " ++ atmname ++ " --treat_l > data/" ++ filename
 	      
 
