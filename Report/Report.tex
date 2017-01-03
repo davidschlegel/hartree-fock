@@ -17,6 +17,16 @@
 
 \input{titlepage}
 
+\section{Introduction}
+Applying numerical methods in quantum mechanics has always been necessary in analyzing complex structures of quantum mechanical systems. The technical progress of computer performance has enabled physicists and mathematicians to simulate complex many-body systems. With these methods tangible progress in quantum physics can be made to analyze quantum phenomena on the level of many-particle interactions. 
+
+This article tackles the implementation of the Hartree-Fock method for many-body simulations in the functional programming language Haskell. Functional programming languages are getting more and more interesting for physicists through their mathematical way of implementation. In this article simple quantum systems are simulated first.
+
+In chapter \ref{CH:HF}, the main work in this article will be presented, namely the attempt to provide a Haskell function library for simulating physical many-body systems. A general overview of how the implementation can be done as well as problems will be treated in this chapter. Here, it is important to note that the full implementation still needs to be completed. Thus, within the progress of this work beyond this report, other problems may arise and might be done in a different manner to increase performance, structure, or simplicity. The implementation so far will be presented as well as the problem of calculating the necessary Gaussian integrals.
+
+Although a lot of effort still needs to be put in this project, I hope to provide a structural attempt to show that the implementation Hartree-Fock Method in Haskell stands out in its simplistic way, with the strong advantage of reproducibility -- due to its functional operation.
+
+
 \section{Simple Quantum Systems}\label{1}
 In this chapter simple quantum systems will be studied. Consider a particle in a three-dimensional potential $V(\vec{x})$. The corresponding wave function $\psi(\vec{x}, t)$ is the solution of the Schrödinger equation
 \begin{equation}
@@ -144,13 +154,13 @@ To proceed to coupled quantum mechanical systems it seems to be mandatory to use
 
 
 
-\section{Many-Body Simulations}
+\section{The Hartree-Fock Method}\label{CH:HF}
     
 Consider a real physical system, where particles are not independent like in atoms, ions, molecules, etc. . Assuming the system consists only of $K$ nuclei and $N$ electrons the hamiltonian consists of the terms
 \begin{align*}
     H = T_i + T_n+ V_{ii} + V_{in} + V_{nn} \text{ ,}
 \end{align*} 
-where $T_i $ and $T_n$ are the kinetic energies of the electrons and nuclei, respectively. $V_{ii}$ represents the Coulomb repulsion between electrons, $V_{nn}$ between the nuclei and $V_{in}$  the attraction between electrons and nuclei. So the hamiltonian reads
+where $T_i $ and $T_n$ are the kinetic energies of the electrons and nuclei, respectively. $V_{ii}$ represents the Coulomb repulsion between electrons, $V_{nn}$ between the nuclei and $V_{in}$  the attraction between electrons and nuclei. So the Hamiltonian reads
 \begin{align*}
     H &= \sum_{i=1}^N \frac{p_i^2}{2m} + \sum_{n=1}^K \frac{P_n^2}{2M_n} + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j\neq 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} \\ &-  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|} +  \frac{1}{4\pi \epsilon_0}\frac{1}{2} \sum_{n,n'=1;n\neq n'}^K \frac{Z_n Z_{n'} e^2}{|\mathbf{R}_n - \mathbf{R}_{n'}|} \text{,}
 \end{align*} where $m$ is the electron mass and $M_n$ the nuclei mass. The index $i$ refers to the electrons, the index $n$ to the nuclei.
@@ -304,6 +314,7 @@ In figure \ref{skiz:programstructure} a schematic representation of the general 
     
 \end{tikzpicture}
 }
+
 \caption{General scheme of the program structure.}
 \label{skiz:programstructure}
 \end{figure}
