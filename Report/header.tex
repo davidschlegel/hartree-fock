@@ -128,12 +128,14 @@
 }
 
 
-\lstnewenvironment{code}
-{\lstset{language=HaskellUlisses}}
-{\hrulesmallskip}
+\lstnewenvironment{code}{\lstset{language=HaskellUlisses}
+}{%
+  \endmdframed\ignorespaces
+}
+
 
 \usepackage{hyperref}
-
+\usetikzlibrary{trees}
 %%%%%%%%%%%%%%%%%%%New Commmands%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \renewcommand{\d}{\mathrm{d}}

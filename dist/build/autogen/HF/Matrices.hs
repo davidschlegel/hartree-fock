@@ -1,3 +1,6 @@
+--IMPORTANT: This moduel is deprecated and no longer in use!!!
+
+
 module HF.Matrices where
 
 import HF.Data
@@ -5,7 +8,9 @@ import Hf.Gauss
 import Numeric.Container
 import Data.Maybe
 
-
+------------------------------------------------------------------------------------
+-----------IMPORTANT: This moduel is deprecated and no longer in use!!!-------------
+------------------------------------------------------------------------------------
 
 
 --element wise zipped list (first coeff, second exp)

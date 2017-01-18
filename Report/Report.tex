@@ -1,5 +1,5 @@
 \documentclass[twoside,        %% zweiseitiges Layout
-			   12pt,			%% Zeilenabstand
+			   11pt,			%% Zeilenabstand
                BCOR10mm,       %% Bindekorrektur 10 mm
 %               liststotoc,nomtotoc,bibtotoc, %% Aufnahme der div. Verzeichnisse
                                               %% ins Inhaltsverzeichnis
@@ -62,7 +62,7 @@ Dividing the Hamiltonian $H$ into $H = T + V$, the non-local kinetic energy oper
 \end{equation}
     
 \subsubsection{Method of Finite Differences}
-There are different methods and approaches to solve the above equation with numerically. Here we will focus on the approach using finite differences, due to its easy way of implementation, with still very good results. This approach is also computationally stable for many given potential, thus this method can be used in many applications in quantum mechanics.
+There are different methods and approaches to solve the above equation with numerically. Here we will focus on the approach using finite differences, due to its easy way of implementation, with still very good results. This approach is also computationally stable for many given potential, thus this method can be used in many applications in quantum mechanics./dist/doc/html/hartree-fock/
 
 Taking a grid $(k,l,m)$ in three dimensions, the kinetic energy operator can be approximated by finite differences
 \begin{flalign}
@@ -179,7 +179,7 @@ If we take the computing time into account, it is obvious that even with a small
 
 To proceed to coupled quantum mechanical systems it seems to be mandatory to use efficient approximations.
 
-
+\newpage
 
 
 \section{The Hartree-Fock Method}\label{CH:HF}
@@ -294,25 +294,33 @@ In this general case, the spin-dependence of the basis set is reflected in the e
 \end{align*}
 Here, each equation for spin-up and spin-down orbitals has to be solved independently. However, we will restrict ourselves to RHF for simplicity.
 
-\subsection{Basis set and basis functions}
-A key for obtaining reasonable and accurate results in Hartree-Fock theory is the correct choice of the orbital set which on which the calculation is based. As mentioned in section. \ref{subseq:roothaan}, the one-particle wave functions are expanded in the form:
+\subsection{Basis set and basis functions}\label{subsec:Basis}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/1228px-Gauss_sto4.png}
+\caption{Approximation of a slater determinant for the 1s orbital by STO-1G, STO-3G and STO-6G basis functions. \cite{pict}}
+\label{fig:STO_GTO}
+\end{figure}
+
+A key for obtaining reasonable and accurate results in Hartree-Fock theory is the correct choice of the orbital set on which the calculation is based. As mentioned in section. \ref{subseq:roothaan}, the one-particle wave functions are expanded in the form:
 \begin{align*}
     \psi_k(\vec{r}) = \sum_{p=1}^M C_{pk} \chi_p (\vec{r})\text{,}
 \end{align*} which is a linear combination of molecular orbitals (LCAO).
 Since analytic forms of the desired atomic orbitals are only known for the hydrogen atom, these orbitals need to be approximated in a suitable manner. Following the analytic solution for the hydrogen orbital, we get a general form of atomic orbital basis functions, whith the nucleus centered at $\mathbf{R_\text{A}}$:
 \begin{align*}
 \chi_\alpha (\mathbf{r}) = r^m P_l (x,y,z) \text{e}^{-\alpha |\mathbf{r-R_\text{A}}|},
-\end{align*}, where $\alpha$ defines the range of the orbital. Here, $P_l$ is a polynomial in $x,y$ and $z$ of degree $l$. This orbital type is also known as a Slater type orbital (STO). However, in Hartree-Fock calculations these orbital types are highly disadvantageous, since integrals containing products of STOs are analytically very difficult and in most cases impossible to compute.
+\end{align*}
+where $\alpha$ defines the range of the orbital. Here, $P_l$ is a polynomial in $x,y$ and $z$ of degree $l$. This orbital type is also known as a Slater type orbital (STO). However, in Hartree-Fock calculations these orbital types are highly disadvantageous, since integrals containing products of STOs are analytically very difficult and in most cases impossible to compute.
 
 Instead, we can avoid this problem, by replacing the simple exponential by a Gaussian function, yielding:
 \begin{align*}
-\chi_\alpha(\mathbf{r}) = P_M (x,y,z) \text{e}^{-\alpha (\mathbf{r-R_\text{A}})^2}
+\chi_\alpha(\mathbf{r}) = P_L (x,y,z) \text{e}^{-\alpha (\mathbf{r-R_\text{A}})^2} = x^ly^mz^n \text{e}^{-\alpha (\mathbf{r-R_\text{A}})^2}
 \end{align*} These functions are called \emph{primitive basis functions}. In this case, products of Gaussian type orbitals (GTO) centered at different nuclei are still Gaussian functions. Thus, the necessary integrals, such as the kinetic integrals, the overlap integrals, the nuclear repulsion integrals as well as the electron-electron interaction integrals can be calculated analytically.
 To accurately approximate a Slater-type orbital one can use a linear combination of Gaussian-type orbitals, which is called a \emph{contracted} Gaussian orbital, with contraction coefficients $a_i$. Denoting a primitive Gaussian with $G(\alpha, A, l, m, n)$, a contraction is simply given by a set of primitive Gaussians:
 \begin{align*}
 G^\text{Contr.} = \sum\limits_i^n a_i G(\alpha_i, A, l, m, n)
 \end{align*} 
-In Fig. \ref{fig:STO_GTO}, a comparison of different contractions for a 1s orbital is shown. Choosing and finding the right basis set is a rather difficult part and there is a huge data base of different basis sets available (see, e.g. \cite{schuchardt2007basis, feller1996role} and the \href{https://bse.pnl.gov/}{EMSL Basis Set Exchange database}). Here, we use the basis set provided by the EMSL Basis Set Exchange database for our calculations.
+Here, the variables $l$, $m$ and $n$ are related to the total angular momentum quantum number $L$ by $L = l+m+n$. In Fig. \ref{fig:STO_GTO}, a comparison of different contractions for an 1s orbital is shown. To represent the cusp of the electron probability at $r=0$ for an STO, one needs to take more than one primitive Gaussian into account. Choosing and finding the right basis set is a rather difficult part and there is a huge data base of different basis sets available (see, e.g. \cite{schuchardt2007basis, feller1996role} and the \href{https://bse.pnl.gov/}{EMSL Basis Set Exchange database}). Here, we use the basis set provided by the EMSL Basis Set Exchange database for our calculations.
 
 For a given basis set, the following integrals need to be computed in the Hartree-Fock method:
 \begin{itemize}
@@ -337,20 +345,12 @@ V_{ij}^C = \bra{\alpha_1, \mathbf{A}, l_1, m_1, n_1}\frac{Z_C}{r_C}\ket{\alpha_2
 \end{align*}
 \end{itemize} The last integral is by far the most important and also most difficult part since the calculation involving 4 different primitive Gaussians scales with $N^4$, where $N$ is the number of primitive Gaussians. Using very efficient state-of-the-art algorithms, the calculation of the electron repulsion integral can be reduced to $\mathcal{O}(N)$.
 For these integrals, analytic solutions exists. The implementation of these integrals is straight-forward but very tedious. For a detailed calculation of Gaussian integral evaluation, see \cite{fermann1997fundamentals, petersson2009detailed, gill1989efficient, huzinaga1985basis, raffenetti1973general}. 
+The analytical computations of these functions are very advantageous, since they are represented by pure functions, i.e. no side-effects or the underlying random system or memory affects the functions, making the computations completely reproducible.
 
-
-\begin{figure}
-\centering
-\includegraphics[width=0.5\textwidth]{figures/1228px-Gauss_sto4.png}
-\caption{Approximation of a slater determinant for the 1s orbital by STO-1G, STO-3G and STO-6G basis functions. \cite{pict}}
-\label{fig:STO_GTO}
-\end{figure}
 
     
 \subsection{Program Structure}
 Here a general overview of the general program structure will be given.
-As outlined before it is important to consider a suitable set of basis functions describing the electrons electrons of the atoms. The accuracy and efficiency of the basis largely depend on the choice of the basis functions, so they need to be chosen carefully. For suitable calculations we use Gaussian basis functions, so the important integrals can be calculated analytically. For a more detailed view on basis functions, see appendix \ref{App:AppendixA}.
-Below the program procedure is sketched.
 
 \begin{enumerate}
 	\item \textbf{Input data}:\\
@@ -376,8 +376,7 @@ Below the program procedure is sketched.
 	The output is are the converged eigenstates $\mathbf{C}_k$ and its corresponding Fock levels.
 \end{enumerate}
 
-In figure \ref{skiz:programstructure} a schematic representation of the general program scheme is shown.
-\newpage    
+In figure \ref{skiz:programstructure} a schematic representation of the general program scheme is shown. 
     
 \tikzstyle{decision} = [diamond, draw, fill=blue!20, text width=7em, text badly centered, node distance=5.7cm, inner sep=0pt]
 \tikzstyle{block} = [rectangle, draw, fill=blue!20,  text width=7em, text centered, rounded corners, minimum height=4em]
@@ -433,12 +432,263 @@ In figure \ref{skiz:programstructure} a schematic representation of the general 
 \label{skiz:programstructure}
 \end{figure}
 \pagebreak
-\begin{appendices}
-\section{Basis Functions} \label{App:AppendixA}
-\end{appendices}
+To solve the Roothaan equation, which is a generalized eigenvalue equation, one can reduce this equation to a normal eigenvalue equation, by finding a matrix $\mathbf{V}$, such that $\mathbf{V}^\dagger\mathbf{S}\mathbf{V} = \mathbf{1}$. In the program, we use build-in functions to solve the entire generalized eigenvalue equation.
+
+\subsection{Implementation}
+Here, an overview about the implementation so far will be given. Not all of the implemented functions are mentioned. A detailed program documentation can be found in the \texttt{/dist/doc/html/hartree-fock/} directory. A schematic scheme of the different program modules is shown in Fig. \ref{scheme:modules}.
+
+
+\tikzstyle{block} = [rectangle, draw,  text width=8em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex]
+\tikzstyle{redline} = [draw=red!50, dash pattern=on 3pt off 3pt, -latex]
+\tikzstyle{largeblock} = [rectangle, draw, text width=10em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{largerblock} = [rectangle, draw, text width=15em, text centered, rounded corners, minimum height=4em]
+
+\tikzstyle{c} = [rectangle, draw, inner sep=0.5cm, dashed]
+\tikzstyle{missingblock} = [rectangle, dash pattern=on 3pt off 3pt, fill=red!50,  text width=12em, text centered, rounded corners, minimum height=4em]
+\begin{figure}[!htb]
+\centering
+
+\scalebox{0.8}{   
+\begin{tikzpicture}[node distance = 3.3cm, auto]
+    % Place nodes
+    \node [largerblock] (init) {\textbf{Module management} \\ \vspace{5pt} \texttt{HF}};
+    \node [largeblock, below of=init] (ReadWrite) {\textbf{Programm interaction}\\ \vspace{5pt} \texttt{ReadWrite}};
+    \node [largeblock, left =10pt of ReadWrite] (Data) {\textbf{Data type declarations and Data type functions}\\ \vspace{5pt} \texttt{Data}};
+    \node [largeblock, right =10pt of ReadWrite] (Gauss) {\textbf{Gaussian integral evaluation}\\ \vspace{5pt} \texttt{Gauss}};
+    \node [missingblock, below of=ReadWrite] (SCF) {\textbf{Self-Consistent-Field method}\\ \textbf{Eigenvalue Solver}\\ \vspace{5pt} \texttt{SCF}};
+
+	\path [line] (init.south) -- ++(0,-0.5) -- (ReadWrite);
+    \path [line] (init.south) -- ++(0,-0.5) -| (Data);
+    \path [line] (init.south) -- ++(0,-0.5) -| (Gauss);
+    \path [redline] (init.south) -- ++(0,-0.5) -- ++(-7.5,0) |- ([yshift=-6pt]SCF.west);
+
+    \path [line] (ReadWrite.west) -- (Data.east);
+    \path [line] ([xshift=-6pt]Gauss.north) --++(0,0.5)  -| ([xshift=+6pt]Data.north);
+	\path [redline] (SCF) -| (Data);
+	\path [redline] (SCF) -| (Gauss);
+	\path [redline] (SCF.north) -- ++(1,0) -| (ReadWrite.south);
+    
+     %\path [line] (newP) |- (convergence);
+    %\path [line] (convergence) |- node [near start] {no} (G);
+    %\path [line] (convergence) -| node [near end] {yes} (done); 
+    
+\end{tikzpicture}}
+\caption{Schematic modular program structure. Arrows represent module dependencies. The \texttt{SCF} module still needs to be implemented.}
+\label{scheme:modules}
+\end{figure}
+
+\subsubsection{Data type declarations and Data type functions}
+Specific Data types are necessary to maintain an overview about the entire program structure and to simplify calculations. Therefore we define the following data types:
+\begin{itemize}
+\item \texttt{Orbital}, defining a certain orbital; dependencies: None
+\item \texttt{Atom}, defining a collection of several (contracted) Orbitals; dependencies: Orbital
+\item \texttt{Mol}, defining a Structure containing multiple Atoms; dependencies: \texttt{Atom, Orbital}
+\item \texttt{PG}, defining a primitive Gaussian function; dependencies: None
+\item \texttt{Ctr}, defining a set of contractions of primitive Gaussians; dependencies: \texttt{PG}
+\end{itemize}
+For all data types we use a \emph{record syntax}, to access the information. \\ \\
+
+\large{\texttt{Orbital}}\\
+The \texttt{Orbital} defines all information about a certain (contracted) Gaussian Orbital. Data type contains the same information as \texttt{CTr}, but it is a canonical data structure for importing data using the basis set database. 
+\begin{code}
+data Orbital = Orbital { 
+			-- | orbital-type (angular momentum) and contraction length  (see also 'momentumdict') 
+			description :: (String, Int)
+			-- | numbering of gaussians
+			, numbering :: Vector Double
+			-- | exponents of gaussians  
+		 	, exponents :: Vector Double
+			-- | coefficients of gaussians  
+			, coeffs :: Vector Double  
+			} deriving (Eq, Show)
+\end{code} \texttt{description} contains the angular momentum information (eg. \texttt{"S", "P", "D"}) and the length of contraction, i.e. the number of contraction coefficients. The exponents and the contraction coefficients are stored as vectors. \\ \\
+
+\large{\texttt{Atom}}\\
+To store all orbital information for a certain atom, we use the data type \texttt{Atom}:
+\begin{code}
+data Atom = Atom {atomname :: String	-- ^ name of the Atom e.g. \"CARBON\"  
+		, orbitals :: [Orbital] -- ^ list of the orbitals corresponding to an atom   
+		 } deriving (Eq, Show)
+\end{code}Here, \texttt{atomname} is a \texttt{String} used to identify the atom (eg. \texttt{"CARBON"}) and its corresponding atomic number $Z$. \\ \\
+
+
+\large{\texttt{Mol}}\\
+To construct an entire molecule which is the input data type for the Hartree-Fock calculations, we provide a data type containing multiple \texttt{Atom} data types, with corresponding position vectors:
+\begin{code}
+data Mol = Mol {  molname :: String		-- ^ Mol name , eg \"H20\" etc.  
+		, config :: [(Atom , Vector Double)] -- ^ configuration  
+		} deriving (Eq, Show)
+\end{code}
+To easily compute the entire geometry of the system, the number of basis functions and the number of atoms, we provide the functions
+\begin{code}
+geometry :: Mol -> [Vector Double]
+
+natoms :: Mol -> Int
+
+nbasisfunctions :: Mol -> Int
+\end{code}
+Additionally, we can merge a list of \texttt{Mol} data types into a single \texttt{Mol} data type, which makes it easy to construct larger molecular structures, with repeating properties, s.a. benzenes, phenyls, etc.:
+\begin{code}
+mergeMols :: [Mol] -- ^ List of Mol datatypes
+			-> String -- ^ New strucure name
+			-> Mol -- ^ final superstructure Mol
+\end{code}\\ \\
+
+\large{\texttt{PG} and \texttt{Ctr}}\\
+For matrix calculations including primitive Gaussian functions, it is convenient to use a data type with all necessary information:
+\begin{code}
+data PG = PG { lmn :: [Int]	-- ^ \[l,m,n\] angular momentum information  
+		, alpha :: Double -- ^ exponent  
+		, position :: Vector Double -- ^ position vector  
+		} deriving (Eq, Show)
+\end{code}
+For convenience, we define a contraction, \texttt{Ctr}, as a list of primitives, with corresponding contraction coefficients:
+\begin{code}
+data Ctr = Ctr{ gaussians :: [PG]	-- ^ list of primitives  
+		, coefflist :: Vector Double -- ^ coefficient vector  
+		} deriving (Eq, Show)
+\end{code} \\
+
+We can convert a \texttt{Mol} data type to a list of \texttt{Ctr} data types, which is necessary for matrix computations involving Gaussian functions:
+\begin{code}
+mol_to_gaussians :: Mol -> [Ctr]
+\end{code}
+
+\subsubsection{Input data}
+For the input of basis set data, we integrate an open source external \texttt{Python} interface, \href{https://github.com/TApplencourt/EMSL_Basis_Set_Exchange_Local.git}{Emsl basit set exchange local} provided by \href{https://github.com/TApplencourt}{Thomas Applencourt} (for more information, see \url{https://github.com/TApplencourt/EMSL_Basis_Set_Exchange_Local.git}). To generate basis set data for a given atom and orbital type, (eg. \texttt{"STO-6G"}), we save the basis set data to a file, for each atom resoectively by the function
+\begin{code}
+generateFile:: [Char] -- ^ basis, eg."STO-6G"
+		-> [Char] -- ^ elementsymbol, eg. "C"
+		-> [Char] -- ^ output filename
+		-> IO (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle) -- ^ output file is saved to @ EMSL_Basis_Set_Exchange_Local/data/ @
+\end{code}
+From a given file with basis set information, we can then parse the basis set information from the file into the \texttt{Haskell} program. Thus, one file with generated basis set data gives a single \texttt{Atom} data type. This is done using the function
+\begin{code}
+getAtomData :: [Char] -- ^ filename of the file where the basis set for a certain element is stored
+		-> Atom -- ^ Atom datastructure
+\end{code}
+Additionally, we can read geometry information for given atoms stored in a file. This is especially useful when comparing results with existing Hartree-Fock programms. Here, we use the xyz-formatting, which is also used by the \href{http://www.cmbi.ru.nl/molden/}{Molden Software}. Since constructing a complex molecular structure with a good guess of initial geometry can be rather difficult from scratch, the molecule with its geometry can be constructed via Molden and then used as input in our program. This can be done in the following way.
+\begin{enumerate}
+\item Read a file containing geometry information and output a list of element symbols, e.g. \texttt{"C"} with corresponding positions.
+NOTE: The file should have the cartesian XYZ-file format that is used in Molden.
+\begin{code}
+getgeom :: [Char] -- ^ directory
+	-> [([Char], Vector Double)] -- ^ List with element symbols and corresponding position vectors
+\end{code}
+example:
+\textbf{\texttt{> > > let list = getgeom "CO2.xyz"}}
+\item With \texttt{constr\_set\_from\_file}, construct basis set data for the different elements which will be saved to files
+\begin{code}
+constr_set_from_file :: [([Char], Vector Double)] -> [Char] -> IO ()
+--For a list of element symbols with corresponding positions ([([Char], Vector Double)]) and a given basis set, e.g. "STO-3G", save basis set data to multiple files.
+\end{code}
+example:\textbf{\texttt{> > > constr\_set\_from\_file list "STO-6G"}}
+\item With \texttt{get\_mol\_from\_files}, read the basis set data to construct the complete molecule:
+\begin{code}
+get_mol_from_files :: [([Char], Vector Double)] -- ^ list of element symbols with corresponding positions
+		-> [Char] -- ^ basis set name, eg. \"STO-3G\"
+		-> [Char] -- ^ molname, eg. \"CO2\"
+		-> Mol
+\end{code}
+example:\textbf{\texttt{> > > let mol = get\_mol\_from\_files list "STO-6G" "CO2"}}
+\end{enumerate}
+
+\subsubsection{Output}
+Information about the constructed \texttt{Mol} data type can obtained by the function
+\begin{code}
+molInfoPrint :: Mol -> String
+{-__Output:__ 
+	Molecule Name
+	Number of Atoms
+	For each Atom:
+		* Atomname
+		* Number of Orbitals
+		* contracted set descriptions
+		* geometry
+-}
+\end{code}
+example:\\
+\textbf{\texttt{> > > let mol = Mol "SINGLE-Carbon" [(getAtomData "C\_STO\_3G.dat", fromList [1,0,0])]
+}}\\
+\textbf{\texttt{> > > putStrLn \$ molInfoprint mol
+}} \\
+\textbf{\texttt{Molecule name:   SINGLE-Carbon}}\\
+\textbf{\texttt{Number of Atoms:  1}}\\
+\quad \textbf{\texttt{Atom:    CARBON}}\\
+\quad \textbf{\texttt{Number of Orbitals:	3}}\\
+\quad \quad \textbf{\texttt{contracted sets:	[("S",3),("S",3),("P",3)]}}\\
+\quad \quad \textbf{\texttt{geometry:	 	[1.0,0.0,0.0]}}
+Additionally, only geometry information can be obtained and by
+\begin{code}
+molGeomPrint :: Mol -> String
+\end{code}
+\subsubsection{Gaussian integral evaluation}
+The Gaussian integral evaluation is so far the most difficult and tedious part. The analytical expressions for the integrals in Sec. \ref{subsec:Basis} are difficult to compute and involves double factorial and error function evaluation. If the angular quantum number $L$ is larger than zero, which is the case for most of the orbitals in atoms, the calculation become somewhat difficult. A general summation of functions used for Gaussian integral evaluation:
+\begin{itemize}
+\item \textbf{Normalization}\\
+For primitive Gaussians as well as for an entire Contraction, the normalization constant needs to be computed:
+\begin{code}
+normCtr :: Ctr -> Double
+--Calculates normalization factor of contracted Gaussian with arbitrary angular momentum
+normPG :: PG -> Double
+--Calculates normalization factor of primitive Gaussian with arbitrary angular momentum
+\end{code}
+\item \textbf{Contraction operations}
+\begin{itemize}
+\item
+\begin{code}
+-- |Evaluates a given function for two contractions. The operation is symmetric in contraction arguments.
+zipContractionWith :: (PG -> PG -> Double) -- ^ Function of two primitive Gaussians 
+			-> Ctr -- ^ Contraction
+			-> Ctr -- ^ Contraction 
+			-> Double
+\end{code}
+\item \begin{code}
+-- |Construct a matrix out of a list of Contractions and a function for two primitive gaussians
+constr_matrix :: [Ctr] -- ^ List of Contraction
+		-> (PG -> PG -> Double) -- ^ Function of two primitive Gaussians
+		-> Matrix Double -- ^ Matrix of dimensions (length [Ctr]) x (length [Ctr])
+\end{code}\end{itemize} 
+\item \textbf{Gaussian integrals}
+\begin{itemize}
+\item \texttt{s\_12}: Overlap integral\\
+\begin{align*}
+S_{ij} = \left<\alpha_1, \mathbf{A}, l_1, m_1, n_1 |\alpha_2, \mathbf{B}, l_2, m_2, n_2 \right>
+\end{align*}
+\begin{code}
+-- |Calculates overlap integral of two primitive gaussians
+s_12 :: PG -> PG -> Double
+\end{code}
+\item \textbf{Kinetic energy integral}\\
+\begin{align*}
+T_{ij} = \bra{\alpha_1, \mathbf{A}, l_1, m_1, n_1}-\frac{1}{2}\nabla^2\ket{\alpha_2, \mathbf{B}, l_2, m_2, n_2}
+\end{align*}
+The calculation of the kinetic energy integral is based on the calculation of the overlap integral.
+\begin{code}
+-- |Calculates kinetic energy integral of two primitive gaussians
+t_12 :: PG -> PG -> Double
+\end{code}
+\item \textbf{Nuclear attraction integral}\\
+\begin{align*}
+V_{ij}^C = \bra{\alpha_1, \mathbf{A}, l_1, m_1, n_1}\frac{Z_C}{r_C}\ket{\alpha_2, \mathbf{B}, l_2, m_2, n_2}
+\end{align*}
+\emph{Note: The calculation of the nuclear attraction integral is at the present state not complete.} For the calculation of the nuclear attraction integral, also the atomic number $Z_C$ as well as the distance to the nucleus $r_C$ are needed.
+\begin{code}
+-- |Calculates nuclear attraction integral of two primitive gaussians
+-- | Here, the second argument is the position vector of the nucleus.
+v_12 :: Double -> Vector Double -> PG -> PG -> Double
+\end{code}
+\item \textbf{Electron repulsion integrals}\\
+\begin{align*}
+\left<pr|g|qs\right> = \int \d^3 r_1 \d^3 r_2 \psi_p^*(\mathbf{r}_1) \psi_r^*(\mathbf{r}_2) \frac{1}{\left| \mathbf{r}_1 -\mathbf{r}_2 \right|} \psi_q(\mathbf{r}_1) \psi_s(\mathbf{r}_2)
+\end{align*} \emph{Note: The calculation of the electron repulsion integrals is no yet complete. Different algorithms and recurrence relations can be used to make the calculation simpler and faster. However, the implementation of the electron repulsion integral is one of the most tedious and difficult parts in this program.}
+\end{itemize}
+\end{itemize}
+
+\section{Outlook}
+
 \pagebreak
-
-
 
     % bib stuff
     \nocite{*}
