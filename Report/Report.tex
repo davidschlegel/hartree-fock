@@ -20,23 +20,32 @@
 \section{Introduction}
 Applying numerical methods in quantum mechanics has always been necessary in analyzing complex structures of quantum mechanical systems. The technical progress of computer performance has enabled physicists and mathematicians to simulate complex many-body systems. With these methods tangible progress in quantum physics can be made to analyze quantum phenomena on the level of many-particle interactions. 
 
-This article tackles the implementation of the Hartree-Fock method for many-body simulations in the functional programming language Haskell. Functional programming languages are getting more and more interesting for physicists through their mathematical way of implementation. In this article simple quantum systems are simulated first.
+This article tackles the implementation of the Hartree-Fock method for many-body simulations in the functional programming language Haskell. Functional programming languages are getting more and more interesting for physicists through their mathematical way of implementation. In this article simple quantum systems are simulated first to show how a simple one-body system can be simulated straight forward in Haskell.
 
-In chapter \ref{CH:HF}, the main work in this article will be presented, namely the attempt to provide a Haskell function library for simulating physical many-body systems. A general overview of how the implementation can be done as well as problems will be treated in this chapter. Here, it is important to note that the full implementation still needs to be completed. Thus, within the progress of this work beyond this report, other problems may arise and might be done in a different manner to increase performance, structure, or simplicity. The implementation so far will be presented as well as the problem of calculating the necessary Gaussian integrals.
+In chapter \ref{CH:HF}, the main work in this article will be presented, namely the attempt to provide a Haskell function library for simulating physical many-body systems. A general overview of how the implementation can be done as well as problems will be treated in this chapter. Here it is important to note that the full implementation still needs to be completed. Thus, within the progress of this work beyond this report, other problems may arise and might be done in a different manner to increase performance, structure, or simplicity. The implementation so far will be presented as well as the problem of calculating necessary Gaussian integrals.
 
-Although a lot of effort still needs to be put in this project, I hope to provide a structural attempt to show that the implementation Hartree-Fock Method in Haskell stands out in its simplistic way, with the strong advantage of reproducibility -- due to its functional operation.
+Although a lot of effort still needs to be put in this project, I hope to provide a structural attempt to show that the implementation of the Hartree-Fock Method in Haskell stands out in its simplistic way, with the strong advantage of reproducibility -- due to its functional operations.
+
+The progress of this project can be tracked on the following repositories:
+\begin{itemize}
+\item GWDG: \url{https://gitlab.gwdg.de/scientific_practical/project_qm} (University Access only)
+
+\item GitHub: \url{https://github.com/davidschlegel/hartree-fock}
+\end{itemize}
+A detailed html documentation about important functions for the Hartree-Fock Method can be found in the \url{/dist/doc/html/hartree-fock/} directory.
+
 
 
 \section{Simple Quantum Systems}\label{1}
-In this chapter simple quantum systems will be studied. Consider a particle in a three-dimensional potential $V(\vec{x})$. The corresponding wave function $\psi(\vec{x}, t)$ is the solution of the Schrödinger equation
+In this chapter simple quantum systems will be studied. Here, we consider a particle in a three-dimensional potential $V(\vec{x})$. The corresponding wave function $\psi(\vec{x}, t)$ is the solution of the Schrödinger equation
 \begin{equation}
   i\hbar \frac{\partial}{\partial t} \psi(\vec{x}, t) = H \psi(\vec{x}, t) = - \frac{\hbar^2}{2m}	\Delta \psi(\vec{x}, t)+  V(\vec{x}) \psi(\vec{x}, t) \text{,}
 \end{equation}
-where $\Delta$ is the Laplacian differential operator: $\Delta = \frac{\partial^2}{\partial x^2} +\frac{\partial^2}{\partial y^2} + \frac{\partial^2}{\partial z^2} $. For a time-independent potential $V(\vec{x})$ the Schrödinger equation can be formally solved by 
+where $\Delta$ is the Laplacian differential operator: $\Delta = \frac{\partial^2}{\partial x^2} +\frac{\partial^2}{\partial y^2} + \frac{\partial^2}{\partial z^2} $. For a time-independent potential $V(\vec{x})$, the Schrödinger equation can be formally solved by 
 \begin{equation}
      \psi(\vec{x}, t) = \text{U}(t, t_0) \psi(\vec{x}, t_0)   = \exp \left\{ - \frac{i(t-t_0) }{\hbar} H \right\}  \psi(\vec{x}, t_0) \text{.}
 \end{equation} 
-For a time-dependent potential like an oscillating laserfield, the time evolution of the wave function becomes
+For a time-dependent potential, like an oscillating laserfield, the time evolution of the wave function becomes
 \begin{align}
    \psi(\vec{x}, t) &= \text{U}(t, t_0) \psi(\vec{x}, t_0)  = \hat{\text{T}}_t  \exp \left\{ \frac{i}{h} \int_{t_0}^t H(\tau) \d \tau \right \}  \psi(\vec{x}, t_0)  \\
    &=  \sum_{n = 0}^\infty \frac{1}{n} {\left( \frac{- i}{\hbar} \right) }^n \int_{t_0}^t \d t_1\int_{t_0}^t \d t_2 \dots \int_{t_0}^t \d t_n \hat{\text{T}}_t \left\{ H(t_1)H(t_2) \dots H(t_n) \right\} \text{,} \nonumber
@@ -53,13 +62,15 @@ Dividing the Hamiltonian $H$ into $H = T + V$, the non-local kinetic energy oper
 \end{equation}
     
 \subsubsection{Method of Finite Differences}
+There are different methods and approaches to solve the above equation with numerically. Here we will focus on the approach using finite differences, due to its easy way of implementation, with still very good results. This approach is also computationally stable for many given potential, thus this method can be used in many applications in quantum mechanics.
+
 Taking a grid $(k,l,m)$ in three dimensions, the kinetic energy operator can be approximated by finite differences
 \begin{flalign}
-   &  T \psi(\vec{x}, t) =  - \frac{\hbar^2}{2m}  \left(  
+   &  T \psi(\vec{x}, t) \approx  - \frac{\hbar^2}{2m}  \left(  
      \frac{\psi_{(k+1,l,m)}^n -2 \psi_{(k,l,m)}^n + \psi_{(k-1,l,m)}^n}{\Delta x^2} +\right. \nonumber \\
      & \left . \frac{\psi_{(k,l+1,m)}^n -2 \psi_{(k,l,m)}^n + \psi_{(k,l-1,m)}^n}{\Delta y^2} +
-       \frac{\psi_{(k,l,m+1)}^n -2 \psi_{(k,l,m)}^n + \psi_{(k,l,m-1)}^n}{\Delta z^2} \right)
-\end{flalign} with higher order terms $\mathcal{O}(\Delta x^2, \Delta y^2, \Delta z^2 )$ where $n$ represents the discrete time index of the wave function. Considering the time independent Schrödinger equation we can write the operator in one dimension as a matrix satisfying the eigenvalue equation
+       \frac{\psi_{(k,l,m+1)}^n -2 \psi_{(k,l,m)}^n + \psi_{(k,l,m-1)}^n}{\Delta z^2} \right),
+\end{flalign} with higher order terms $\mathcal{O}(\Delta x^2, \Delta y^2, \Delta z^2 )$ where $n$ represents the discrete time index of the wave function. Considering the time independent Schrödinger equation, we can write the operator in one dimension as a matrix satisfying the eigenvalue equation
  \begin{align}
 \left[ \begin{pmatrix}
 2	& -1	& &  \dots	 & 0      \\
@@ -69,7 +80,7 @@ Taking a grid $(k,l,m)$ in three dimensions, the kinetic energy operator can be 
 0 	&   \dots & & -1	 & 2
 \end{pmatrix} + V_{kk} \right ]
 \begin{pmatrix}\psi_1 \\ \vdots \\ \psi_k \\ \vdots \\ \psi_N \end{pmatrix}
- = E \begin{pmatrix}\psi_1 \\ \vdots \\ \psi_k \\ \vdots \\ \psi_N \end{pmatrix}
+ = E \begin{pmatrix}\psi_1 \\ \vdots \\ \psi_k \\ \vdots \\ \psi_N \end{pmatrix},
 \end{align} where $\vec{\psi}$ are the values of the wave function on the evaluation points $x_k$. $V_{kk}$  represents the potential for each $x_k$, thus it is a diagonal matrix.
 \par For the example of a particle in a box the potential is
 \begin{align} 
@@ -83,9 +94,9 @@ Solving the above eigenvalue equation yields the eigenfunctions $\psi_n$ with ei
 	\caption{Propability densities for the calculated eigenfunctions $\psi_n$, with the method of finite differences and a grid of $N=100$ for $n = 1,2,3$ and $4$ in one dimension. For simplicity the pre-factor $\frac{\hbar^2}{2m}$ was set to one, obtaining non-normalized eigenfunctions.}
 	\label{fig:eigenfunctions}
 \end{figure} 
-To reduce the problem of a particle in three dimensions to a simple matrix equation, the spatial wave function $\vec{\psi}$ can be stacked, to obtain an $N^3$ dimensional vector
+To reduce the problem of a particle in three dimensions to a simple matrix equation, the spatial wave function $\vec{\psi}$ can be stacked, to obtain a $N^3$ dimensional vector through nested vectors,
 \begin{align}
-\vec{\psi}_{k,l,m} = \begin{pmatrix}\vec{\psi}_{1,1,m} \\ \vdots \\ \vec{\psi}_{1,N,m} \\ \vdots \\ \vec{\psi}_{N,1,m} \\ \vdots \\ \vec{\psi}_{N,N,m} \end{pmatrix} \text{, through nested vectors.}
+\vec{\psi}_{k,l,m} = \begin{pmatrix}\vec{\psi}_{1,1,m} \\ \vdots \\ \vec{\psi}_{1,N,m} \\ \vdots \\ \vec{\psi}_{N,1,m} \\ \vdots \\ \vec{\psi}_{N,N,m} \end{pmatrix}.
 \end{align}
 
 For two dimensions the approximated kinetic energy operator $T$ thus becomes the tridiagonal block matrix
@@ -106,15 +117,36 @@ In figure \ref{fig:2d_eigenfunction} an example of an eigenstate for a particle 
 	\Huge
 	\hspace*{-1.5in}
 	\centering
-	\subfigure[Color map, $\psi_{12}$, $N=60$.]
+	\subfigure[$\psi_{12}$, $N=60$.]
 		{\resizebox{!}{0.28\textwidth}{\input{figures/2dn12.tex}}\label{fig:2d_eigenfunction}}
 	%\hfill
-	\subfigure[Surface graphic, $\psi_{34}$, $N=100$.]
+	\subfigure[$\psi_{34}$, $N=100$.]
 		{\resizebox{0.48\textwidth}{!}{\includegraphics{figures/2dn34_surf.pdf}}\label{fig:2d_surf_eigenfunction}}\\
 	 %\hfill
 	\caption{Propability densities for the calculated eigenfunctions with the method of finite differences and a grid of $N=100$ and $N=60$ in two dimensions. For simplicity the pre-factor $\hbar^2 /2m$ was set to one, obtaining non-normalized eigenfunctions.}
 	\label{Aufbauskizze}
 \end{figure}
+
+An implementation of this eigenvalue problem can be done in the following way:
+\begin{code}
+--index function
+index :: (Int, Int) -> Int -> Double
+index (i,j) n
+	| i == j       =  4
+	| i == j + n   = -1
+	| i == j - n   = -1
+	| i == j + 1   = -1
+	| i == j - 1   = -1
+	| otherwise    =  0
+
+-- Laplace Matrix in 2 dimensions
+t :: Matrix Double
+t = buildMatrix (n*n) (n*n) (\(i,j) -> index (i,j) n)	
+
+--Compute eigenvalues and corresponding eigenvectors 
+e = sort(toList(mapVector realPart (fst(eig(t)))))
+psi = toColumns (mapMatrix realPart (snd(eig(t))))
+\end{code}
 
 
 %\begin{figure}[!htb]
@@ -141,13 +173,9 @@ T \approx
               \end{pmatrix}
 \end{align*}
 
-\begin{lstlisting}
-Still Missing: Comparison with exact results
-\end{lstlisting}
+Referring back to the time expansion in chapter \ref{1}, the time evolution of an eigenfunction of the Hamiltonian is trivial, since $\psi_t$ only differs in phase from the initial state $\psi_0$, so ${|\psi_t|}^2$ is time-independent, although linear combinations of eigenfunctions depend on time, which will not be calculated here.\\
 
-Referring back to the time expansion in chapter \ref{1}, the time evolution of an eigenfunction of the hamiltonian is trivial, since $\psi_t$ only differs in phase from the initial state $\psi_0$, so ${|\psi_t|}^2$ is time-independent, although linear combinations of eigenfunctions depend on time, which will not be calculated here.\\
-
-If we take the computing time into account, it is obvious that even with a small grid size $N<100$ and parallelized computing the simulation of a particle in a square well potential lead to unexecutable applications. The increase of dimensions with constant gridsize results in a growing computing time higher than $\mathcal O (t_0^n)$. \\
+If we take the computing time into account, it is obvious that even with a small grid size $N<100$ and parallelized computing the simulation of a particle in a square well potential leads to unexecutable applications. The increase of dimensions with constant gridsize results in a growing computing time higher than $\mathcal O (t_0^n)$. \\
 
 To proceed to coupled quantum mechanical systems it seems to be mandatory to use efficient approximations.
 
@@ -156,7 +184,7 @@ To proceed to coupled quantum mechanical systems it seems to be mandatory to use
 
 \section{The Hartree-Fock Method}\label{CH:HF}
     
-Consider a real physical system, where particles are not independent like in atoms, ions, molecules, etc. . Assuming the system consists only of $K$ nuclei and $N$ electrons the hamiltonian consists of the terms
+We consider a real physical system, where particles are not independent, like in atoms, ions, molecules, etc. Assuming the system consists only of $K$ nuclei and $N$ electrons, the Hamiltonian consists of the terms
 \begin{align*}
     H = T_i + T_n+ V_{ii} + V_{in} + V_{nn} \text{ ,}
 \end{align*} 
@@ -164,13 +192,25 @@ where $T_i $ and $T_n$ are the kinetic energies of the electrons and nuclei, res
 \begin{align*}
     H &= \sum_{i=1}^N \frac{p_i^2}{2m} + \sum_{n=1}^K \frac{P_n^2}{2M_n} + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j\neq 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} \\ &-  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|} +  \frac{1}{4\pi \epsilon_0}\frac{1}{2} \sum_{n,n'=1;n\neq n'}^K \frac{Z_n Z_{n'} e^2}{|\mathbf{R}_n - \mathbf{R}_{n'}|} \text{,}
 \end{align*} where $m$ is the electron mass and $M_n$ the nuclei mass. The index $i$ refers to the electrons, the index $n$ to the nuclei.
-This hamiltonian describing the system looks quite complicated and in fact, computing the dynamics of this system seems to be unsolvable even for a few particles and an efficient super computer. Therefore, approximations must be made, still comprising the important information about the system. One approach is the Born-Oppenheimer approximation. It uses the fact that the nuclei are much heavier than the electrons, so the motions of the nuclei are much slower compared to the electrons, justifying to neglect the coulomb repulsion between the nuclei and the kinetic energy of the nuclei, so the approximated hamiltonian becomes
+This hamiltonian describing the system looks quite complicated and in fact, computing the dynamics of this system seem to be unsolvable even for a few particles and an efficient super computer. Therefore, approximations must be made, still comprising the important information about the system. One approach is the Born-Oppenheimer approximation. It uses the fact that the nuclei are much heavier than the electrons, so the motions of the nuclei are much slower compared to the electrons, justifying to neglect the coulomb repulsion between the nuclei and the kinetic energy of the nuclei, so the approximated Hamiltonian becomes
 \begin{align}\label{eq:H_BO}
 H_\text{BO} = \sum_{i=1}^N \frac{p_i^2}{2m}  + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j = 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} -  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|}  \text{.}
 \end{align}  
 The positions of the nuclei can be varied to find the minimum of the total energy.
 \subsection{The Hartree-Fock Method and Equations}
-In equation (\ref{eq:H_BO}) the antisymmetry of the fermion wave functions was not taken into account. Fock extended the so called \textit{Hartree equation} by taking antisymmetry into account. The derivation of the \textit{Hartree} and \textit{Hartree-Fock equations} will not be given here, since the main aim here is the implementation of the method. Therefore see e.g. \cite[p. 56-60]{Thijssen2007} and \cite[chapter 3]{Jensen2013}. The \textit{Fock operator} is in natural units given by
+In equation (\ref{eq:H_BO}) the antisymmetry of the fermion wave functions was not taken into account. Fock extended the so called \textit{Hartree equation} by taking antisymmetry into account. This approach is based on introducing antisymmetry of the wavefunction by constructing the so called Slater determinant, which is a determinant from single-particle wave functions:
+\begin{align*}
+\Psi_\text{AS}(\mathbf{x}_1, \dots, \mathbf{x}_N) = \frac{1}{\sqrt{N!}}
+\begin{vmatrix}
+\psi_1(\mathbf{x}_1) &\psi_2(\mathbf{x}_1)& \dots &\psi_N (\mathbf{x}_1) \\
+\psi_1(\mathbf{x}_2) &\psi_2(\mathbf{x}_2)& \dots &\psi_N (\mathbf{x}_2) \\
+\vdots & \vdots & & \vdots \\
+\psi_1(\mathbf{x}_N)& \psi_2(\mathbf{x}_N)& \dots& \psi_N (\mathbf{x}_N)
+\end{vmatrix}
+\end{align*} 
+Interchanging spatial coordinates of two particles thus changes the sign of the slater determinant. It is important to note that the slater determinant already imposes a restriction to the full wave function. Further improvements could be made to also take linear combinations of slater determinants into account.
+
+The derivation of the \textit{Hartree} and \textit{Hartree-Fock equations} will not be given here, since the main aim here is the implementation of the method. Therefore see e.g. \cite[p. 56-60]{Thijssen2007} and \cite[chapter 3]{Jensen2013}. The \textit{Fock operator} is in natural units given by
  \begin{align} \label{eq:hf}
  \mathcal{F}\psi_k = &\left[-\frac{1}{2} \nabla^2 
  - \sum_n \frac{Z_n}{|\mathbf{r}- \mathbf{R}_n|}\right]\psi_k(\mathbf{x}) + \nonumber
@@ -190,7 +230,7 @@ In equation (\ref{eq:H_BO}) the antisymmetry of the fermion wave functions was n
     
     
     
-\subsection{The Roothaan Equation}
+\subsection{The Roothaan Equation}\label{subseq:roothaan}
 For molecules numerical basis sets are not efficient, so we use atom centered basis sets to describe the molecular orbital
 \begin{align}\label{eq:orbital}
     \psi_k(\vec{x}) = \sum_{p=1}^M C_{pk} \chi_p (\vec{x})\text{,}
@@ -211,7 +251,7 @@ This can be written in matrix notation of the Hartree-Fock equations, expressed 
     \mathbf{F} \mathbf{C_k} &= \epsilon_k \mathbf{S} \mathbf{C_k} \; \text{,}
 \end{align} which is called the \textit{Roothaan equation}.
 Since the Fock operator itself depends on $\mathbf{C_k}$ we have the problem of self consistency, because $\mathcal{F}$ has the solution already inside. The Self Consistent Field Method (SCF) uses the approach to solve the above equation iteratively, until the solution deviates only small from the next iteration.
-\par Equation (\ref{eq:roothaaneq}) looks similar to the Hartree-Fock equation, but here $\mathbf{S}$ is the overlap matrix for the given orbital basis $\chi_p (\mathbf{r})$. In comparison with eq. (\ref{eq:hf}) we can write the Fock matrix as \cite{Thijssen2007}
+\par Equation (\ref{eq:roothaaneq}) looks similar to the Hartree-Fock equation, but here $\mathbf{S}$ is the overlap matrix for the given orbital basis $\chi_p (\mathbf{r})$. The $\mathbf{S}$-matrix does not vanish, since the used orbital basis does not need to be normalized. In comparison with eq. (\ref{eq:hf}) we can write the Fock matrix as \cite{Thijssen2007}
 \begin{align*}
 F_{pq} = h_{pq} + \sum\limits_k \sum\limits_{rs} C_{rk}^* C_{sk} \left( 2 \left<pr|g|qs\right> -  \left<pr|g|sq\right> \right)\text{,}
 \end{align*} where $h_{pq}$ is identified with the first term of the Fock operator
@@ -220,7 +260,7 @@ h_{pq} = \left< p|h|q\right> = \int \d^3 r \chi_p^*(\mathbf{r})\left[ -\frac{1}{
 \end{align*} The terms $\left<pr|g|qs\right>$ and $\left<pr|g|sq\right>$ are the two-electron integrals given by
 \begin{align*}
 \left<pr|g|qs\right> = \int \d^3 r_1 \d^3 r_2 \chi_p^*(\mathbf{r}_1) \chi_r^*(\mathbf{r}_2) \frac{1}{\left| \mathbf{r}_1 -\mathbf{r}_2 \right|} \chi_q(\mathbf{r}_1) \chi_s(\mathbf{r}_2) \text{.}
-\end{align*} Here $p$, $q$, $r$ and $s$ label the basis functions and $k$ labels the orbitals $\phi_k$.
+\end{align*} Here $p$, $q$, $r$ and $s$ label the basis functions and $k$ labels the orbitals $\psi_k$.
 For simplicity and implementation it is convenient to define the density matrix as
 \begin{align*}
 P_{pq} = 2\sum\limits_k C_{pk}^* C_{qk} \text{,}
@@ -232,11 +272,85 @@ F_{pq} = h_{pq} + \sum\limits_{rs} P_{sr} \left( 2 \left<pr|g|qs\right> -  \left
 \begin{align*}
 E = \sum\limits_{pq} P_{pq}h_{pq} + \frac{1}{2}  \sum\limits_{pqrs} P_{pq}P_{sr} \left[ \left<pr|g|qs\right> -  \frac{1}{2}\left<pr|g|sq\right> \right] \text{.}
 \end{align*}
+
+\subsection{Closed and open shell systems}    
+Since also the spin plays important role in atomic structures, further restriction on the spin states can be made, leading to closed and open-shell systems, referred to as Unrestricted Hartree-Fock, and Restricted Hartree-Fock. In a closed shell, the orbitals are occupied by two electrons with opposite spin, whereas in an open shell, the energy levels are partially filled where levels contain only one electron. Since the occupied levels in atoms strictly follow the Aufbau principle, the restriction of a closed-shell might lead to unphysical results in some cases. Even if the number of electrons is even, the electrons do not necessarily occupy closed shells -- for an odd number of electrons, an open shell is always present.
+For a closed shell, and thus for even $N$, the slater determinant is
+\begin{align*}
+\Psi_\textbf{R} = \det \left[\alpha \psi_1, \dots, \alpha\psi_{N/2}, \beta \psi_1, \dots, \beta\psi_{N/2} \right] (\mathbf{x}_1, \dots, \mathbf{x}_N) , 
+\end{align*} which is referred to as \textbf{restricted closed shell Hartree-Fock} (RHF).
+When allowing the number of spin-up and spin-down states to be different, the slater-determinant becomes:
+\begin{align*}
+\Psi_\textbf{R} = \det \left[\alpha \psi_1, \dots, \alpha\psi_{N_\alpha}, \beta \psi_1, \dots, \beta\psi_{N_\beta} \right] (\mathbf{x}_1, \dots, \mathbf{x}_N).
+\end{align*} This represents the \textbf{restricted open shell Hartree-Fock} (ROHF).
+However, in the general case, also the one-particle wave functions have spin-dependence, requiring two distinct basis sets, for spin-down and for spin-up states, respectively, yielding to the \textbf{unrestricted Hartree-Fock} (UHF) method, with slater determinant
+\begin{align*}
+\Psi_\textbf{R} = \det \left[\alpha \psi_1^\alpha, \dots, \alpha\psi_{N_\alpha}^\alpha, \beta \psi_1^\beta, \dots, \beta\psi_{N_\beta}^\beta \right] (\mathbf{x}_1, \dots, \mathbf{x}_N).
+\end{align*}
+In this general case, the spin-dependence of the basis set is reflected in the expansion coefficients $\mathbf{C}_k$, since they also depend on the spin, yielding the so-called \emph{Pople-Nesbet} equations:
+\begin{align*}
+\mathbf{F}^\alpha \mathbf{C_k}^\alpha &= \epsilon_k^\alpha \mathbf{S} \mathbf{C_k}^\alpha \\
+\mathbf{F}^\beta \mathbf{C_k}^\beta &= \epsilon_k^\beta \mathbf{S} \mathbf{C_k}^\beta
+\end{align*}
+Here, each equation for spin-up and spin-down orbitals has to be solved independently. However, we will restrict ourselves to RHF for simplicity.
+
+\subsection{Basis set and basis functions}
+A key for obtaining reasonable and accurate results in Hartree-Fock theory is the correct choice of the orbital set which on which the calculation is based. As mentioned in section. \ref{subseq:roothaan}, the one-particle wave functions are expanded in the form:
+\begin{align*}
+    \psi_k(\vec{r}) = \sum_{p=1}^M C_{pk} \chi_p (\vec{r})\text{,}
+\end{align*} which is a linear combination of molecular orbitals (LCAO).
+Since analytic forms of the desired atomic orbitals are only known for the hydrogen atom, these orbitals need to be approximated in a suitable manner. Following the analytic solution for the hydrogen orbital, we get a general form of atomic orbital basis functions, whith the nucleus centered at $\mathbf{R_\text{A}}$:
+\begin{align*}
+\chi_\alpha (\mathbf{r}) = r^m P_l (x,y,z) \text{e}^{-\alpha |\mathbf{r-R_\text{A}}|},
+\end{align*}, where $\alpha$ defines the range of the orbital. Here, $P_l$ is a polynomial in $x,y$ and $z$ of degree $l$. This orbital type is also known as a Slater type orbital (STO). However, in Hartree-Fock calculations these orbital types are highly disadvantageous, since integrals containing products of STOs are analytically very difficult and in most cases impossible to compute.
+
+Instead, we can avoid this problem, by replacing the simple exponential by a Gaussian function, yielding:
+\begin{align*}
+\chi_\alpha(\mathbf{r}) = P_M (x,y,z) \text{e}^{-\alpha (\mathbf{r-R_\text{A}})^2}
+\end{align*} These functions are called \emph{primitive basis functions}. In this case, products of Gaussian type orbitals (GTO) centered at different nuclei are still Gaussian functions. Thus, the necessary integrals, such as the kinetic integrals, the overlap integrals, the nuclear repulsion integrals as well as the electron-electron interaction integrals can be calculated analytically.
+To accurately approximate a Slater-type orbital one can use a linear combination of Gaussian-type orbitals, which is called a \emph{contracted} Gaussian orbital, with contraction coefficients $a_i$. Denoting a primitive Gaussian with $G(\alpha, A, l, m, n)$, a contraction is simply given by a set of primitive Gaussians:
+\begin{align*}
+G^\text{Contr.} = \sum\limits_i^n a_i G(\alpha_i, A, l, m, n)
+\end{align*} 
+In Fig. \ref{fig:STO_GTO}, a comparison of different contractions for a 1s orbital is shown. Choosing and finding the right basis set is a rather difficult part and there is a huge data base of different basis sets available (see, e.g. \cite{schuchardt2007basis, feller1996role} and the \href{https://bse.pnl.gov/}{EMSL Basis Set Exchange database}). Here, we use the basis set provided by the EMSL Basis Set Exchange database for our calculations.
+
+For a given basis set, the following integrals need to be computed in the Hartree-Fock method:
+\begin{itemize}
+\item \textbf{Overlap integral}
+\begin{align*}
+S_{ij} = \left<\alpha_1, \mathbf{A}, l_1, m_1, n_1 |\alpha_2, \mathbf{B}, l_2, m_2, n_2 \right> = \int \psi_1^*(\mathbf{r})
+\psi_2(\mathbf{r})d\mathbf{r}
+\end{align*}
+\item \textbf{Kinetic energy integral}
+\begin{align*}
+T_{ij} = \bra{\alpha_1, \mathbf{A}, l_1, m_1, n_1}-\frac{1}{2}\nabla^2\ket{\alpha_2, \mathbf{B}, l_2, m_2, n_2} = \int \psi_1^*(\mathbf{r})\left( -\frac{1}{2}\nabla^2\right)
+\psi_2(\mathbf{r})d\mathbf{r}
+\end{align*}
+\item \textbf{Nuclear Attraction integrals}
+\begin{align*}
+V_{ij}^C = \bra{\alpha_1, \mathbf{A}, l_1, m_1, n_1}\frac{Z_C}{r_C}\ket{\alpha_2, \mathbf{B}, l_2, m_2, n_2} = \int \psi_1^*(\mathbf{r})\left(\frac{Z_C}{r_C}\nabla^2\right)
+\psi_2(\mathbf{r})d\mathbf{r}
+\end{align*}
+\item \textbf{Electron repulsion integral}
+\begin{align*}
+\text{ERI} = \left<pr|g|qs\right> = \int \d^3 r_1 \d^3 r_2 \psi_p^*(\mathbf{r}_1) \psi_r^*(\mathbf{r}_2) \frac{1}{\left| \mathbf{r}_1 -\mathbf{r}_2 \right|} \psi_q(\mathbf{r}_1) \psi_s(\mathbf{r}_2)
+\end{align*}
+\end{itemize} The last integral is by far the most important and also most difficult part since the calculation involving 4 different primitive Gaussians scales with $N^4$, where $N$ is the number of primitive Gaussians. Using very efficient state-of-the-art algorithms, the calculation of the electron repulsion integral can be reduced to $\mathcal{O}(N)$.
+For these integrals, analytic solutions exists. The implementation of these integrals is straight-forward but very tedious. For a detailed calculation of Gaussian integral evaluation, see \cite{fermann1997fundamentals, petersson2009detailed, gill1989efficient, huzinaga1985basis, raffenetti1973general}. 
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{figures/1228px-Gauss_sto4.png}
+\caption{Approximation of a slater determinant for the 1s orbital by STO-1G, STO-3G and STO-6G basis functions. \cite{pict}}
+\label{fig:STO_GTO}
+\end{figure}
+
     
 \subsection{Program Structure}
 Here a general overview of the general program structure will be given.
-As outlined before it is important to consider a suitable set of basis functions describing the electrons electrons of the atoms. The accuracy and efficiency of the basis largely depend on the choice of the basis functions, so they need to be chosen carefully. For suitable calculations we use gaussian basis functions, so the important integrals can be calculated analytically. For a more detailed view on basis functions, see appendix \ref{App:AppendixA}.
-Below the program procedure is scetched.
+As outlined before it is important to consider a suitable set of basis functions describing the electrons electrons of the atoms. The accuracy and efficiency of the basis largely depend on the choice of the basis functions, so they need to be chosen carefully. For suitable calculations we use Gaussian basis functions, so the important integrals can be calculated analytically. For a more detailed view on basis functions, see appendix \ref{App:AppendixA}.
+Below the program procedure is sketched.
 
 \begin{enumerate}
 	\item \textbf{Input data}:\\
@@ -267,7 +381,7 @@ In figure \ref{skiz:programstructure} a schematic representation of the general 
     
 \tikzstyle{decision} = [diamond, draw, fill=blue!20, text width=7em, text badly centered, node distance=5.7cm, inner sep=0pt]
 \tikzstyle{block} = [rectangle, draw, fill=blue!20,  text width=7em, text centered, rounded corners, minimum height=4em]
-\tikzstyle{line} = [draw, 'latex']
+\tikzstyle{line} = [draw]
 \tikzstyle{largeblock} = [rectangle, draw, fill=blue!20, text width=17em, text centered, rounded corners, minimum height=4em]
 \tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm, minimum height=2em]
 \tikzstyle{c} = [rectangle, draw, inner sep=0.5cm, dashed]
