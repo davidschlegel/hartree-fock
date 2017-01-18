@@ -20,11 +20,11 @@
 \section{Introduction}
 Applying numerical methods in quantum mechanics has always been necessary in analyzing complex structures of quantum mechanical systems. The technical progress of computer performance has enabled physicists and mathematicians to simulate complex many-body systems. With these methods tangible progress in quantum physics can be made to analyze quantum phenomena on the level of many-particle interactions. 
 
-This article tackles the implementation of the Hartree-Fock method for many-body simulations in the functional programming language Haskell. Functional programming languages are getting more and more interesting for physicists through their mathematical way of implementation. In this article simple quantum systems are simulated first to show how a simple one-body system can be simulated straight forward in Haskell.
+This article tackles the implementation of the Hartree-Fock method for many-body simulations in the functional programming language \texttt{Haskell}. Functional programming languages are getting more and more interesting for physicists through their mathematical way of implementation. In this article simple quantum systems are simulated first to show how a simple one-body system can be simulated straight forward in \texttt{Haskell}.
 
-In chapter \ref{CH:HF}, the main work in this article will be presented, namely the attempt to provide a Haskell function library for simulating physical many-body systems. A general overview of how the implementation can be done as well as problems will be treated in this chapter. Here it is important to note that the full implementation still needs to be completed. Thus, within the progress of this work beyond this report, other problems may arise and might be done in a different manner to increase performance, structure, or simplicity. The implementation so far will be presented as well as the problem of calculating necessary Gaussian integrals.
+In chapter \ref{CH:HF}, the main work in this article will be presented, namely the attempt to provide a \texttt{Haskell} function library for simulating physical many-body systems. A general overview of how the implementation can be done as well as problems will be treated in this chapter. Here it is important to note that the full implementation still needs to be completed. Thus, within the progress of this work beyond this report, other problems may arise and might be done in a different manner to increase performance, structure, or simplicity. The implementation so far will be presented as well as the problem of calculating necessary Gaussian integrals.
 
-Although a lot of effort still needs to be put in this project, I hope to provide a structural attempt to show that the implementation of the Hartree-Fock Method in Haskell stands out in its simplistic way, with the strong advantage of reproducibility -- due to its functional operations.
+Although a lot of effort still needs to be put in this project, I hope to provide a structural attempt to show that the implementation of the Hartree-Fock Method in \texttt{Haskell} stands out in its simplistic way, with the strong advantage of reproducibility -- due to its functional operations.
 
 The progress of this project can be tracked on the following repositories:
 \begin{itemize}
@@ -45,7 +45,7 @@ where $\Delta$ is the Laplacian differential operator: $\Delta = \frac{\partial^
 \begin{equation}
      \psi(\vec{x}, t) = \text{U}(t, t_0) \psi(\vec{x}, t_0)   = \exp \left\{ - \frac{i(t-t_0) }{\hbar} H \right\}  \psi(\vec{x}, t_0) \text{.}
 \end{equation} 
-For a time-dependent potential, like an oscillating laserfield, the time evolution of the wave function becomes
+For a time-dependent potential, like an oscillating laser field, the time evolution of the wave function becomes
 \begin{align}
    \psi(\vec{x}, t) &= \text{U}(t, t_0) \psi(\vec{x}, t_0)  = \hat{\text{T}}_t  \exp \left\{ \frac{i}{h} \int_{t_0}^t H(\tau) \d \tau \right \}  \psi(\vec{x}, t_0)  \\
    &=  \sum_{n = 0}^\infty \frac{1}{n} {\left( \frac{- i}{\hbar} \right) }^n \int_{t_0}^t \d t_1\int_{t_0}^t \d t_2 \dots \int_{t_0}^t \d t_n \hat{\text{T}}_t \left\{ H(t_1)H(t_2) \dots H(t_n) \right\} \text{,} \nonumber
@@ -91,7 +91,7 @@ Solving the above eigenvalue equation yields the eigenfunctions $\psi_n$ with ei
 	\Huge
 	\centering
 	\resizebox{!}{0.4\textwidth}{\input{figures/eigenfunctions.tex}}
-	\caption{Propability densities for the calculated eigenfunctions $\psi_n$, with the method of finite differences and a grid of $N=100$ for $n = 1,2,3$ and $4$ in one dimension. For simplicity the pre-factor $\frac{\hbar^2}{2m}$ was set to one, obtaining non-normalized eigenfunctions.}
+	\caption{Probability densities for the calculated eigenfunctions $\psi_n$, with the method of finite differences and a grid of $N=100$ for $n = 1,2,3$ and $4$ in one dimension. For simplicity the pre-factor $\frac{\hbar^2}{2m}$ was set to one, obtaining non-normalized eigenfunctions.}
 	\label{fig:eigenfunctions}
 \end{figure} 
 To reduce the problem of a particle in three dimensions to a simple matrix equation, the spatial wave function $\vec{\psi}$ can be stacked, to obtain a $N^3$ dimensional vector through nested vectors,
@@ -123,7 +123,7 @@ In figure \ref{fig:2d_eigenfunction} an example of an eigenstate for a particle 
 	\subfigure[$\psi_{34}$, $N=100$.]
 		{\resizebox{0.48\textwidth}{!}{\includegraphics{figures/2dn34_surf.pdf}}\label{fig:2d_surf_eigenfunction}}\\
 	 %\hfill
-	\caption{Propability densities for the calculated eigenfunctions with the method of finite differences and a grid of $N=100$ and $N=60$ in two dimensions. For simplicity the pre-factor $\hbar^2 /2m$ was set to one, obtaining non-normalized eigenfunctions.}
+	\caption{Probability densities for the calculated eigenfunctions with the method of finite differences and a grid of $N=100$ and $N=60$ in two dimensions. For simplicity the pre-factor $\hbar^2 /2m$ was set to one, obtaining non-normalized eigenfunctions.}
 	\label{Aufbauskizze}
 \end{figure}
 
@@ -175,7 +175,7 @@ T \approx
 
 Referring back to the time expansion in chapter \ref{1}, the time evolution of an eigenfunction of the Hamiltonian is trivial, since $\psi_t$ only differs in phase from the initial state $\psi_0$, so ${|\psi_t|}^2$ is time-independent, although linear combinations of eigenfunctions depend on time, which will not be calculated here.\\
 
-If we take the computing time into account, it is obvious that even with a small grid size $N<100$ and parallelized computing the simulation of a particle in a square well potential leads to unexecutable applications. The increase of dimensions with constant gridsize results in a growing computing time higher than $\mathcal O (t_0^n)$. \\
+If we take the computing time into account, it is obvious that even with a small grid size $N<100$ and parallelized computing the simulation of a particle in a square well potential leads to unexecutable applications. The increase of dimensions with constant grid size results in a growing computing time higher than $\mathcal O (t_0^n)$. \\
 
 To proceed to coupled quantum mechanical systems it seems to be mandatory to use efficient approximations.
 
@@ -192,13 +192,13 @@ where $T_i $ and $T_n$ are the kinetic energies of the electrons and nuclei, res
 \begin{align*}
     H &= \sum_{i=1}^N \frac{p_i^2}{2m} + \sum_{n=1}^K \frac{P_n^2}{2M_n} + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j\neq 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} \\ &-  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|} +  \frac{1}{4\pi \epsilon_0}\frac{1}{2} \sum_{n,n'=1;n\neq n'}^K \frac{Z_n Z_{n'} e^2}{|\mathbf{R}_n - \mathbf{R}_{n'}|} \text{,}
 \end{align*} where $m$ is the electron mass and $M_n$ the nuclei mass. The index $i$ refers to the electrons, the index $n$ to the nuclei.
-This hamiltonian describing the system looks quite complicated and in fact, computing the dynamics of this system seem to be unsolvable even for a few particles and an efficient super computer. Therefore, approximations must be made, still comprising the important information about the system. One approach is the Born-Oppenheimer approximation. It uses the fact that the nuclei are much heavier than the electrons, so the motions of the nuclei are much slower compared to the electrons, justifying to neglect the coulomb repulsion between the nuclei and the kinetic energy of the nuclei, so the approximated Hamiltonian becomes
+This Hamiltonian describing the system looks quite complicated and in fact, computing the dynamics of this system seem to be unsolvable even for a few particles and an efficient super computer. Therefore, approximations must be made, still comprising the important information about the system. One approach is the Born-Oppenheimer approximation. It uses the fact that the nuclei are much heavier than the electrons, so the motions of the nuclei are much slower compared to the electrons, justifying to neglect the coulomb repulsion between the nuclei and the kinetic energy of the nuclei, so the approximated Hamiltonian becomes
 \begin{align}\label{eq:H_BO}
 H_\text{BO} = \sum_{i=1}^N \frac{p_i^2}{2m}  + \frac{1}{4\pi \epsilon_0}\frac{1}{2}\sum_{i,j = 1, i \neq j}^N \frac{e^2}{|\mathbf{r}_i - \mathbf{r}_j|} -  \frac{1}{4\pi \epsilon_0}\sum_{i=1}^K \sum_{i=1}^N \frac{Z_n e^2}{|\mathbf{r}_j-\mathbf{R}_n|}  \text{.}
 \end{align}  
 The positions of the nuclei can be varied to find the minimum of the total energy.
 \subsection{The Hartree-Fock Method and Equations}
-In equation (\ref{eq:H_BO}) the antisymmetry of the fermion wave functions was not taken into account. Fock extended the so called \textit{Hartree equation} by taking antisymmetry into account. This approach is based on introducing antisymmetry of the wavefunction by constructing the so called Slater determinant, which is a determinant from single-particle wave functions:
+In equation (\ref{eq:H_BO}) the antisymmetry of the fermion wave functions was not taken into account. Fock extended the so called \textit{Hartree equation} by taking antisymmetry into account. This approach is based on introducing antisymmetry of the wave function by constructing the so called Slater determinant, which is a determinant from single-particle wave functions:
 \begin{align*}
 \Psi_\text{AS}(\mathbf{x}_1, \dots, \mathbf{x}_N) = \frac{1}{\sqrt{N!}}
 \begin{vmatrix}
@@ -306,7 +306,7 @@ A key for obtaining reasonable and accurate results in Hartree-Fock theory is th
 \begin{align*}
     \psi_k(\vec{r}) = \sum_{p=1}^M C_{pk} \chi_p (\vec{r})\text{,}
 \end{align*} which is a linear combination of molecular orbitals (LCAO).
-Since analytic forms of the desired atomic orbitals are only known for the hydrogen atom, these orbitals need to be approximated in a suitable manner. Following the analytic solution for the hydrogen orbital, we get a general form of atomic orbital basis functions, whith the nucleus centered at $\mathbf{R_\text{A}}$:
+Since analytic forms of the desired atomic orbitals are only known for the hydrogen atom, these orbitals need to be approximated in a suitable manner. Following the analytic solution for the hydrogen orbital, we get a general form of atomic orbital basis functions, with the nucleus centered at $\mathbf{R_\text{A}}$:
 \begin{align*}
 \chi_\alpha (\mathbf{r}) = r^m P_l (x,y,z) \text{e}^{-\alpha |\mathbf{r-R_\text{A}}|},
 \end{align*}
@@ -355,7 +355,7 @@ Here a general overview of the general program structure will be given.
 \begin{enumerate}
 	\item \textbf{Input data}:\\
 	Here the basis sets as well as the geometry of the atoms in the molecule will be provided and parsed to the program. Furthermore the numbers of electrons $N$ and the atomic charge numbers $Z_n$ are needed as input.
-	\item \textbf{Calulate independent matrices}\\
+	\item \textbf{Calculate independent matrices}\\
 	All matrices that are independent of the eigenvectors $\mathbf{C}_k$ can be calculated:
 	\begin{itemize}
 		\item The overlap matrix $S_pq$,
@@ -394,7 +394,7 @@ In figure \ref{skiz:programstructure} a schematic representation of the general 
     \node [block, left of=hpq] (Spq) {overlap matrix $S_{pq}$};
     \node [block, right of=hpq] (prgqs) {two-electron integrals $\braket{pr|g|qs}$};
     \node [block, right of=prgqs] (Ppq) {uncoupled one-electron Hamiltonian $h_{pq}$};
-    \node [block, below of=Spq] (VSV) {bring $\mathbf{S}$ to unitform, s.th $\mathbf{V^\dagger SV}  = \mathbf{1}$};
+    \node [block, below of=Spq] (VSV) {bring $\mathbf{S}$ to unit form, s.t. $\mathbf{V^\dagger SV}  = \mathbf{1}$};
     
     \node [largeblock, scale=0.9, below of=prgqs] (G) {Coulomb and exchange contributions to the Fock matrix. {\small $G_{pq}=\sum_{rs}P_{rs} \left[\braket{pr|g|qs} - \frac{1}{2} \braket{pr|g|sq}\right]$}};
     \node [block, below left of=G] (F) {Fock matrix \mbox{$F_{pq} = h_{pq} + G_{pq}$}};
@@ -453,7 +453,7 @@ Here, an overview about the implementation so far will be given. Not all of the 
 \begin{tikzpicture}[node distance = 3.3cm, auto]
     % Place nodes
     \node [largerblock] (init) {\textbf{Module management} \\ \vspace{5pt} \texttt{HF}};
-    \node [largeblock, below of=init] (ReadWrite) {\textbf{Programm interaction}\\ \vspace{5pt} \texttt{ReadWrite}};
+    \node [largeblock, below of=init] (ReadWrite) {\textbf{Program interaction}\\ \vspace{5pt} \texttt{ReadWrite}};
     \node [largeblock, left =10pt of ReadWrite] (Data) {\textbf{Data type declarations and Data type functions}\\ \vspace{5pt} \texttt{Data}};
     \node [largeblock, right =10pt of ReadWrite] (Gauss) {\textbf{Gaussian integral evaluation}\\ \vspace{5pt} \texttt{Gauss}};
     \node [missingblock, below of=ReadWrite] (SCF) {\textbf{Self-Consistent-Field method}\\ \textbf{Eigenvalue Solver}\\ \vspace{5pt} \texttt{SCF}};
@@ -467,7 +467,7 @@ Here, an overview about the implementation so far will be given. Not all of the 
     \path [line] ([xshift=-6pt]Gauss.north) --++(0,0.5)  -| ([xshift=+6pt]Data.north);
 	\path [redline] (SCF) -| (Data);
 	\path [redline] (SCF) -| (Gauss);
-	\path [redline] (SCF.north) -- ++(1,0) -| (ReadWrite.south);
+	\path [redline] (SCF.north) -- (ReadWrite.south);
     
      %\path [line] (newP) |- (convergence);
     %\path [line] (convergence) |- node [near start] {no} (G);
@@ -490,7 +490,7 @@ Specific Data types are necessary to maintain an overview about the entire progr
 For all data types we use a \emph{record syntax}, to access the information. \\ \\
 
 \large{\texttt{Orbital}}\\
-The \texttt{Orbital} defines all information about a certain (contracted) Gaussian Orbital. Data type contains the same information as \texttt{CTr}, but it is a canonical data structure for importing data using the basis set database. 
+The \texttt{Orbital} defines all information about a certain (contracted) Gaussian Orbital. Data type contains the same information as \texttt{Ctr}, but it is a canonical data structure for importing data using the basis set database. 
 \begin{code}
 data Orbital = Orbital { 
 			-- | orbital-type (angular momentum) and contraction length  (see also 'momentumdict') 
@@ -502,7 +502,7 @@ data Orbital = Orbital {
 			-- | coefficients of gaussians  
 			, coeffs :: Vector Double  
 			} deriving (Eq, Show)
-\end{code} \texttt{description} contains the angular momentum information (eg. \texttt{"S", "P", "D"}) and the length of contraction, i.e. the number of contraction coefficients. The exponents and the contraction coefficients are stored as vectors. \\ \\
+\end{code} \texttt{description} contains the angular momentum information (e.g. \texttt{"S", "P", "D"}) and the length of contraction, i.e. the number of contraction coefficients. The exponents and the contraction coefficients are stored as vectors. \\ \\
 
 \large{\texttt{Atom}}\\
 To store all orbital information for a certain atom, we use the data type \texttt{Atom}:
@@ -510,13 +510,13 @@ To store all orbital information for a certain atom, we use the data type \textt
 data Atom = Atom {atomname :: String	-- ^ name of the Atom e.g. \"CARBON\"  
 		, orbitals :: [Orbital] -- ^ list of the orbitals corresponding to an atom   
 		 } deriving (Eq, Show)
-\end{code}Here, \texttt{atomname} is a \texttt{String} used to identify the atom (eg. \texttt{"CARBON"}) and its corresponding atomic number $Z$. \\ \\
+\end{code}Here, \texttt{atomname} is a \texttt{String} used to identify the atom (e.g. \texttt{"CARBON"}) and its corresponding atomic number $Z$. \\ \\
 
 
 \large{\texttt{Mol}}\\
 To construct an entire molecule which is the input data type for the Hartree-Fock calculations, we provide a data type containing multiple \texttt{Atom} data types, with corresponding position vectors:
 \begin{code}
-data Mol = Mol {  molname :: String		-- ^ Mol name , eg \"H20\" etc.  
+data Mol = Mol {  molname :: String		-- ^ Mol name , e.g. \"H20\" etc.  
 		, config :: [(Atom , Vector Double)] -- ^ configuration  
 		} deriving (Eq, Show)
 \end{code}
@@ -530,8 +530,8 @@ nbasisfunctions :: Mol -> Int
 \end{code}
 Additionally, we can merge a list of \texttt{Mol} data types into a single \texttt{Mol} data type, which makes it easy to construct larger molecular structures, with repeating properties, s.a. benzenes, phenyls, etc.:
 \begin{code}
-mergeMols :: [Mol] -- ^ List of Mol datatypes
-			-> String -- ^ New strucure name
+mergeMols :: [Mol] -- ^ List of Mol data types
+			-> String -- ^ New structure name
 			-> Mol -- ^ final superstructure Mol
 \end{code}\\ \\
 
@@ -556,22 +556,22 @@ mol_to_gaussians :: Mol -> [Ctr]
 \end{code}
 
 \subsubsection{Input data}
-For the input of basis set data, we integrate an open source external \texttt{Python} interface, \href{https://github.com/TApplencourt/EMSL_Basis_Set_Exchange_Local.git}{Emsl basit set exchange local} provided by \href{https://github.com/TApplencourt}{Thomas Applencourt} (for more information, see \url{https://github.com/TApplencourt/EMSL_Basis_Set_Exchange_Local.git}). To generate basis set data for a given atom and orbital type, (eg. \texttt{"STO-6G"}), we save the basis set data to a file, for each atom resoectively by the function
+For the input of basis set data, we integrate an open source external \texttt{Python} interface, \href{https://github.com/TApplencourt/EMSL_Basis_Set_Exchange_Local.git}{Emsl basis set exchange local} provided by \href{https://github.com/TApplencourt}{Thomas Applencourt} (for more information, see \url{https://github.com/TApplencourt/EMSL_Basis_Set_Exchange_Local.git}). To generate basis set data for a given atom and orbital type, (e.g. \texttt{"STO-6G"}), we save the basis set data to a file, for each atom respectively by the function
 \begin{code}
-generateFile:: [Char] -- ^ basis, eg."STO-6G"
-		-> [Char] -- ^ elementsymbol, eg. "C"
+generateFile:: [Char] -- ^ basis, e.g."STO-6G"
+		-> [Char] -- ^ elementsymbol, e.g. "C"
 		-> [Char] -- ^ output filename
 		-> IO (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle) -- ^ output file is saved to @ EMSL_Basis_Set_Exchange_Local/data/ @
 \end{code}
 From a given file with basis set information, we can then parse the basis set information from the file into the \texttt{Haskell} program. Thus, one file with generated basis set data gives a single \texttt{Atom} data type. This is done using the function
 \begin{code}
 getAtomData :: [Char] -- ^ filename of the file where the basis set for a certain element is stored
-		-> Atom -- ^ Atom datastructure
+		-> Atom -- ^ Atom data structure
 \end{code}
-Additionally, we can read geometry information for given atoms stored in a file. This is especially useful when comparing results with existing Hartree-Fock programms. Here, we use the xyz-formatting, which is also used by the \href{http://www.cmbi.ru.nl/molden/}{Molden Software}. Since constructing a complex molecular structure with a good guess of initial geometry can be rather difficult from scratch, the molecule with its geometry can be constructed via Molden and then used as input in our program. This can be done in the following way.
+Additionally, we can read geometry information for given atoms stored in a file. This is especially useful when comparing results with existing Hartree-Fock programs. Here, we use the xyz-formatting, which is also used by the \href{http://www.cmbi.ru.nl/molden/}{Molden Software}. Since constructing a complex molecular structure with a good guess of initial geometry can be rather difficult from scratch, the molecule with its geometry can be constructed via Molden and then used as input in our program. This can be done in the following way.
 \begin{enumerate}
 \item Read a file containing geometry information and output a list of element symbols, e.g. \texttt{"C"} with corresponding positions.
-NOTE: The file should have the cartesian XYZ-file format that is used in Molden.
+NOTE: The file should have the Cartesian XYZ-file format that is used in Molden.
 \begin{code}
 getgeom :: [Char] -- ^ directory
 	-> [([Char], Vector Double)] -- ^ List with element symbols and corresponding position vectors
@@ -587,8 +587,8 @@ example:\textbf{\texttt{> > > constr\_set\_from\_file list "STO-6G"}}
 \item With \texttt{get\_mol\_from\_files}, read the basis set data to construct the complete molecule:
 \begin{code}
 get_mol_from_files :: [([Char], Vector Double)] -- ^ list of element symbols with corresponding positions
-		-> [Char] -- ^ basis set name, eg. \"STO-3G\"
-		-> [Char] -- ^ molname, eg. \"CO2\"
+		-> [Char] -- ^ basis set name, e.g. \"STO-3G\"
+		-> [Char] -- ^ molname, e.g. \"CO2\"
 		-> Mol
 \end{code}
 example:\textbf{\texttt{> > > let mol = get\_mol\_from\_files list "STO-6G" "CO2"}}
@@ -618,8 +618,8 @@ example:\\
 \quad \textbf{\texttt{Atom:    CARBON}}\\
 \quad \textbf{\texttt{Number of Orbitals:	3}}\\
 \quad \quad \textbf{\texttt{contracted sets:	[("S",3),("S",3),("P",3)]}}\\
-\quad \quad \textbf{\texttt{geometry:	 	[1.0,0.0,0.0]}}
-Additionally, only geometry information can be obtained and by
+\quad \quad \textbf{\texttt{geometry:	 	[1.0,0.0,0.0]}}\\
+Additionally, only geometry information can be obtained by
 \begin{code}
 molGeomPrint :: Mol -> String
 \end{code}
@@ -686,7 +686,24 @@ v_12 :: Double -> Vector Double -> PG -> PG -> Double
 \end{itemize}
 \end{itemize}
 
+\subsection{Problems}
+Looking at the Hartree-Fock method as a whole, it is fair to say that this project is an 	endeavor which is far to complex to implement alone. During the process of program implementation, several problems arose:
+\begin{itemize}
+\item The first problem of getting suitable basis set data could be nicely solved by making use of the open source \texttt{Python} program  "\href{https://github.com/TApplencourt/EMSL_Basis_Set_Exchange_Local.git}{Emsl basis set exchange local}". This made it possible to directly parse the basis set information into \texttt{Haskell} data types.
+\item The most difficult part after all is the implementation of the Gaussian integrals. The analytic expressions for these evaluations are difficult to find in literature and far more difficult than expected. The implementation of the Gaussian integral calculations consumed most of the effort in comparison to the other implemented modules. At the present state, the implementation of the nuclear attraction integral and the electron repulsion integrals still needs to be done. A possible solution to this difficulty is to rely on existing implementations in imperative programming languages. Doing so, the functional purity would be lost but more effort could be put in implementing the self-consistent field scheme. Due to the fact that \texttt{Haskell} is still a relatively young programming language, the amount of existing \texttt{Haskell} libraries, which could possibly used in this case, is rather small in comparison to e.g. \texttt{Python} or \texttt{C/C++}. Another compromise solution could be a plain numerical calculation of the given Gaussian integrals instead of implementing analytical solutions.
+\item Another problem lies in the difficulty of debugging implemented functions, since currently the program is not able to produce scientifically comparable results. The disparity of imperative and functional programming languages makes it hard to compare calculation steps in existing programs with the program presented here, although still possible, to find implementation errors.
+\end{itemize}
+
 \section{Outlook}
+We have seen that the functional programming language \texttt{Haskell} is a good choice for studying quantum mechanical systems. First we have looked at single-particle systems and calculated, as an example, the two-dimensional system, with an electron confined in an infinitely deep square potential using the method of finite differences. Here, an implementation in \texttt{Haskell} stands up in its pure functional properties and concise coding possibilities.
+
+The main aim of this work was to investigate quantum many-body systems and how this can be done by implementing numerical methods in \texttt{Haskell}. As one of the most fundamental theories in many-electron systems, the Hartree-Fock method was chosen to simulate atomic structures, such as molecules and others. We first outlined the key concepts and equations in Hartree-Fock theory with special focus on computational applications. On this basis, a general scheme, independent of functional or imperative programming languages, was outlined. We further developed a general program structure, with keeping the advantages and properties of \texttt{Haskell} in mind. Therefore, all functions involving \texttt{IO}-functions are concentrated in a single module, all data type declarations in another. The modular approach allows it to keep track of the entire program development without loosing a good overview.
+As outlined in Sec. \ref{subsec:Basis} especially basis functions and basis sets play an important role in the implementation, since their computation is a difficult part.
+We provided a user friendly interface, to construct atomic structures with all their necessary information. An external \texttt{Python} program was used to provide all basis set data which can be parsed to the \texttt{Haskell} program and converted into suitable data structures. As outlined in the previous section, unforeseen difficulties arose when implementing the Gaussian integrals analytically.
+
+Although the program presented here is not yet ready to execute electronic many-body calculation, a big step was already made. Programming in \texttt{Haskell} essentially contributed not loosing track about the whole issue. Implementing the Hartree-Fock method in \texttt{Haskell} shows, that this functional programming language is well suited for scientific methods. Although for researchers with a background of imperative programming languages, starting to implement scientific methods in \texttt{Haskell} might be a bit cumbersome, the advantages of reproducibility and purity of functions as well as the coding structure makes it up for it.
+
+For the future work on this project it is highly preferable to consult other researchers that are familiar with the topic, since it quickly turned out that implementing electronic many-body systems from scratch is a very difficult task to tackle alone. 
 
 \pagebreak
 
